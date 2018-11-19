@@ -1,0 +1,64 @@
+---
+## Usage create a set of variables that the tools team will use for our deployments.
+## This will also create proxy environment options options when "http_proxy_server" is defined.
+##   The no proxy configuration is optional.
+##
+## Playbook options:
+##  - "http_proxy_server"
+##  - "https_proxy_server" (OPTIONAL)
+##  - "extra_no_proxy_hosts" (OPTIONAL)
+##  - "java_http_proxy" (OPTIONAL)
+##  - "java_https_proxy_port" (OPTIONAL)
+##  - "java_https_proxy" (OPTIONAL)
+##  - "java_https_proxy_port" (OPTIONAL)
+##  - "file_location" (OPTIONAL)
+
+# USAGE:$ (openstack-ansible || ansible-playbook) generate-environment-vars.yml -e 'http_proxy_server=https://proxy_server.local:3128'
+- name: Create user tools variables file
+  hosts: localhost
+  user: root
+  vars:
+    java_http_proxy: "{{ (http_proxy_server).split(':')[1].strip('/') }}"
+    java_https_proxy: "{{ (https_proxy_server | default(http_proxy_server)).split(':')[1].strip('/') }}"
+    java_http_proxy_port: "{{ (http_proxy_server).split(':')[2].strip('/') }}"
+    java_https_proxy_port: "{{ (https_proxy_server | default(http_proxy_server)).split(':')[2].strip('/') }}"
+    no_proxy_hosts:
+      - localhost
+      - 127.0.0.1
+      - "{{ (groups['rabbitmq_all'] | union(groups['log_containers'] )) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
+  tasks:
+    - name: Create user_tools_variables.yml
+      copy:
+        content: |
+            # Adding elastic search and kibana to haproxy_extra_services
+            haproxy_extra_services:
+            - service:
+                haproxy_service_name: elasticsearch
+                haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+                haproxy_ssl: True
+                haproxy_port: 9201
+                haproxy_backend_port: 9200
+                haproxy_balance_type: http
+                haproxy_backend_options:
+                    - "httpchk"
+            - service:
+                haproxy_service_name: kibana_ssl
+                haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+                haproxy_ssl: True
+                haproxy_port: 8443
+                haproxy_backend_port: 81
+                haproxy_balance_type: tcp
+
+            {% if http_proxy_server is defined %}
+            # Proxy Variables
+            deployment_environment_variables:
+              http_proxy: "{{ http_proxy_server }}"
+              https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
+              no_proxy: "{{ no_proxy_hosts | join(',') }},{{ extra_no_proxy_hosts | default('') }}"
+              ES_JAVA_OPTS: >-
+                -Dhttp.proxyHost={{ java_http_proxy }}
+                -Dhttps.proxyHost={{ java_https_proxy }}
+                -Dhttp.proxyPort={{ java_http_proxy_port }}
+                -Dhttps.proxyPort={{ java_https_proxy_port }}
+            {% endif %}
+        dest: "{{ file_location | default('/etc/openstack_deploy/user_tools_variables.yml') }}"
