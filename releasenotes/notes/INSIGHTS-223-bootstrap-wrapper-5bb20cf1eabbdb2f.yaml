@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added wrapper for upstream bootstrap-embedded-ansible.sh.
+    Set supported RPC Toolstack ansible version to 2.6.5.
