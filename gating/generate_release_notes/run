@@ -15,3 +15,5 @@
 # release notes should be formatted with GitHub-flavoured Markdown.
 # RE_HOOK_REPO_HTTP_URL: The URL for the repository being released e.g.
 # https://github.com/rcbops/rpc-openstack.git.
+
+echo "Release notes generation has not been implemented for ${RE_HOOK_REPO_HTTP_URL}" > $RE_HOOK_RELEASE_NOTES
