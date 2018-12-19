@@ -1,10 +1,12 @@
 ---
 ## Usage create a set of variables that the tools team will use for our deployments.
-## This will also create proxy environment options options when "http_proxy_server" is defined.
-##   The no proxy configuration is optional.
+## This will create
+##   - proxy environment options options when "http_proxy_server" is defined. The no proxy configuration is optional.
+##   - haproxy configurations for our internal tooling
+##   - beat service state options
 ##
 ## Playbook options:
-##  - "http_proxy_server"
+##  - "http_proxy_server" (OPTIONAL)
 ##  - "https_proxy_server" (OPTIONAL)
 ##  - "extra_no_proxy_hosts" (OPTIONAL)
 ##  - "java_http_proxy" (OPTIONAL)
@@ -12,12 +14,16 @@
 ##  - "java_https_proxy" (OPTIONAL)
 ##  - "java_https_proxy_port" (OPTIONAL)
 ##  - "file_location" (OPTIONAL)
+##
+## When defining a proxy, the http(s)_proxy_server variables must be in the form of a URL with a specified port.
 
 # USAGE:$ (openstack-ansible || ansible-playbook) generate-environment-vars.yml -e 'http_proxy_server=https://proxy_server.local:3128'
+
 - name: Create user tools variables file
   hosts: localhost
   user: root
   vars:
+    http_proxy_server: "none://none:none"
     java_http_proxy: "{{ (http_proxy_server).split(':')[1].strip('/') }}"
     java_https_proxy: "{{ (https_proxy_server | default(http_proxy_server)).split(':')[1].strip('/') }}"
     java_http_proxy_port: "{{ (http_proxy_server).split(':')[2].strip('/') }}"
@@ -26,10 +32,23 @@
       - localhost
       - 127.0.0.1
       - "{{ (groups['rabbitmq_all'] | union(groups['log_containers'] )) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
+    # Available service states are "started" and "stopped".
+    beat_service_states:
+      true:
+        state: restarted
+      false:
+        state: stopped
+
   tasks:
     - name: Create user_tools_variables.yml
       copy:
         content: |
+            ---
+            ### NOTICE:
+            ###   The variables in the file are owned by the environmental tools team. These options are
+            ###   maintained by automation. Any writes to this file will be automatically overrwitten.
+
+            {% raw %}
             # Adding elastic search and kibana to haproxy_extra_services
             haproxy_extra_services:
             - service:
@@ -48,8 +67,9 @@
                 haproxy_port: 8443
                 haproxy_backend_port: 81
                 haproxy_balance_type: tcp
+            {% endraw %}
 
-            {% if http_proxy_server is defined %}
+            {% if http_proxy_server != "none://none:none" %}
             # Proxy Variables
             deployment_environment_variables:
               http_proxy: "{{ http_proxy_server }}"
@@ -61,4 +81,15 @@
                 -Dhttp.proxyPort={{ java_http_proxy_port }}
                 -Dhttps.proxyPort={{ java_https_proxy_port }}
             {% endif %}
+
+            {% raw %}
+            # Set beat service states based on group membership
+            auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
+            filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
+            heartbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['utility_all'] | default([])) | string | lower)] }}"
+            journalbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
+            metricbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
+            packetbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['network_hosts'] | default([])) | string | lower)] }}"
+            {% endraw %}
+
         dest: "{{ file_location | default('/etc/openstack_deploy/user_tools_variables.yml') }}"
