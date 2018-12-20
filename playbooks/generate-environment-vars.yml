@@ -32,12 +32,6 @@
       - localhost
       - 127.0.0.1
       - "{{ (groups['rabbitmq_all'] | union(groups['log_containers'] )) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
-    # Available service states are "started" and "stopped".
-    beat_service_states:
-      true:
-        state: restarted
-      false:
-        state: stopped
 
   tasks:
     - name: Create user_tools_variables.yml
@@ -83,13 +77,20 @@
             {% endif %}
 
             {% raw %}
+            # Available service states are "started" and "stopped".
+            beat_service_states:
+              true:
+                state: restarted
+              false:
+                state: stopped
+
             # Set beat service states based on group membership
-            auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
-            filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
-            heartbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['utility_all'] | default([])) | string | lower)] }}"
-            journalbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
-            metricbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)] }}"
-            packetbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['network_hosts'] | default([])) | string | lower)] }}"
+            auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+            filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+            heartbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['utility_all'] | default([])) | string | lower)]['state'] }}"
+            journalbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+            metricbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+            packetbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['network_hosts'] | default([])) | string | lower)]['state'] }}"
             {% endraw %}
 
         dest: "{{ file_location | default('/etc/openstack_deploy/user_tools_variables.yml') }}"
