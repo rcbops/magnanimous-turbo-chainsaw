@@ -1,0 +1,17 @@
+---
+- name: Create user tools variables file
+  hosts: localhost
+  connection: local
+  user: root
+  gather_facts: no
+  tasks:
+    - name: Get the MTC archive
+      git:
+        dest: /opt/magnanimous-turbo-chainsaw
+        repo: https://github.com/rcbops/magnanimous-turbo-chainsaw.git
+        force: yes
+        track_submodules: yes
+        clone: yes
+        update: yes
+        recursive: yes
+        version: HEAD

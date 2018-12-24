@@ -13,7 +13,8 @@
 ##  - "java_https_proxy_port" (OPTIONAL)
 ##  - "java_https_proxy" (OPTIONAL)
 ##  - "java_https_proxy_port" (OPTIONAL)
-##  - "file_location" (OPTIONAL)
+##  - "var_location" (OPTIONAL) variable directory path
+##  - "file_location" (OPTIONAL) variable file path
 ##
 ## When defining a proxy, the http(s)_proxy_server variables must be in the form of a URL with a specified port.
 
@@ -21,7 +22,9 @@
 
 - name: Create user tools variables file
   hosts: localhost
+  connection: local
   user: root
+  gather_facts: no
   vars:
     http_proxy_server: "none://none:none"
     java_http_proxy: "{{ (http_proxy_server).split(':')[1].strip('/') }}"
@@ -34,63 +37,40 @@
       - "{{ (groups['rabbitmq_all'] | union(groups['log_containers'] )) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
 
   tasks:
+    - name: Ensure openstack-deploy directory exists
+      file:
+        path: "{{ var_location | default('/etc/openstack_deploy') }}"
+        state: directory
+
     - name: Create user_tools_variables.yml
+      template:
+        src: templates/user_tools_variables.yml.j2
+        dest: "{{ file_location | default(var_location + '/user_tools_variables.yml') }}"
+
+    - name: Ensure environment files directory exists
+      file:
+        path: "{{ var_location | default('/etc/openstack_deploy') }}/env.d"
+        state: directory
+
+    - name: Copy environment files
       copy:
-        content: |
-            ---
-            ### NOTICE:
-            ###   The variables in the file are owned by the environmental tools team. These options are
-            ###   maintained by automation. Any writes to this file will be automatically overrwitten.
+        src: 'files/{{ item }}'
+        dest: "{{ var_location }}/env.d/{{ item }}"
+      with_items:
+        - elk.yml
+        - fleet.yml
 
-            {% raw %}
-            # Adding elastic search and kibana to haproxy_extra_services
-            haproxy_extra_services:
-            - service:
-                haproxy_service_name: elasticsearch
-                haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
-                haproxy_ssl: True
-                haproxy_port: 9201
-                haproxy_backend_port: 9200
-                haproxy_balance_type: http
-                haproxy_backend_options:
-                    - "httpchk"
-            - service:
-                haproxy_service_name: kibana_ssl
-                haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
-                haproxy_ssl: True
-                haproxy_port: 8443
-                haproxy_backend_port: 81
-                haproxy_balance_type: tcp
-            {% endraw %}
+    - name: Find log_hosts entries
+      find:
+        paths: /etc/openstack_deploy
+        file_type: file
+        contains: "^log_hosts:.*"
+        patterns: "*.yml"
+        recurse: yes
+      register: log_hosts_entries
 
-            {% if http_proxy_server != "none://none:none" %}
-            # Proxy Variables
-            deployment_environment_variables:
-              http_proxy: "{{ http_proxy_server }}"
-              https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
-              no_proxy: "{{ no_proxy_hosts | join(',') }},{{ extra_no_proxy_hosts | default('') }}"
-              ES_JAVA_OPTS: >-
-                -Dhttp.proxyHost={{ java_http_proxy }}
-                -Dhttps.proxyHost={{ java_https_proxy }}
-                -Dhttp.proxyPort={{ java_http_proxy_port }}
-                -Dhttps.proxyPort={{ java_https_proxy_port }}
-            {% endif %}
-
-            {% raw %}
-            # Available service states are "started" and "stopped".
-            beat_service_states:
-              true:
-                state: restarted
-              false:
-                state: stopped
-
-            # Set beat service states based on group membership
-            auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
-            filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
-            heartbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['utility_all'] | default([])) | string | lower)]['state'] }}"
-            journalbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
-            metricbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
-            packetbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['network_hosts'] | default([])) | string | lower)]['state'] }}"
-            {% endraw %}
-
-        dest: "{{ file_location | default('/etc/openstack_deploy/user_tools_variables.yml') }}"
+    - name: Add kolide_hosts entries
+      lineinfile:
+        path: "{{ item.path }}"
+        line: 'kolide_hosts: *log_hosts'
+      with_items: "{{ log_hosts_entries.files }}"

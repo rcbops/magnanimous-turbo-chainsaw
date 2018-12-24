@@ -1,0 +1,35 @@
+---
+- name: Cleanup Legacy Filebeat
+  hosts: all
+  user: root
+  gather_facts: no
+  handlers:
+    - name: Restart RAX-MaaS
+      service:
+        name: rackspace-monitoring-agent
+        state: restarted
+  tasks:
+    - name: (FILEBEAT) Remove old maas checks
+      find:
+        paths: /etc/rackspace-monitoring-agent.conf.d
+        file_type: file
+        patterns: "filebeat*"
+      register: filebeat_checks
+
+    - name: (FILEBEAT) Remove old maas checks
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ filebeat_checks.files }}"
+      notify:
+        - Restart RAX-MaaS
+
+    - name: (FILEBEAT) Stop old beat
+      service:
+        name: filebeat
+        state: stopped
+
+    - name: (FILEBEAT) Remove old beat
+      package:
+        name: filebeat
+        state: absent
