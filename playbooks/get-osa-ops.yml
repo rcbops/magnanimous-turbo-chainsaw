@@ -1,0 +1,17 @@
+---
+- name: Get osa ops
+  hosts: localhost
+  connection: local
+  user: root
+  gather_facts: no
+  tasks:
+    - name: Get the OSA OPS archive
+      git:
+        dest: /opt/openstack-ansible-ops
+        repo: https://github.com/openstack/openstack-ansible-ops.git
+        force: yes
+        track_submodules: yes
+        clone: yes
+        update: yes
+        recursive: yes
+        version: HEAD

@@ -1,0 +1,63 @@
+---
+### NOTICE:
+###   The variables in the file are owned by the environmental tools team. These options are
+###   maintained by automation. Any writes to this file will be automatically overrwitten.
+
+{% raw %}
+# Adding elastic search and kibana to haproxy_extra_services
+haproxy_extra_services:
+  - service:
+      haproxy_service_name: elasticsearch
+      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+      haproxy_ssl: True
+      haproxy_port: 9201
+      haproxy_backend_port: 9200
+      haproxy_balance_type: http
+      haproxy_backend_options:
+          - "httpchk"
+  - service:
+      haproxy_service_name: kibana_ssl
+      haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+      haproxy_ssl: True
+      haproxy_port: 8443
+      haproxy_backend_port: 81
+      haproxy_balance_type: tcp
+  - service:
+      haproxy_service_name: kolide-fleet
+      haproxy_backend_nodes: "{{ groups['kolide-fleet_all'] | default([]) }}"
+      haproxy_ssl: True
+      haproxy_port: 6443
+      haproxy_check_port: 443
+      haproxy_backend_port: 443
+      haproxy_balance_type: tcp
+{% endraw %}
+
+{% if (http_proxy_server is defined) and (http_proxy_server != "none://none:none") %}
+# Proxy Variables
+deployment_environment_variables:
+  http_proxy: "{{ http_proxy_server }}"
+  https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
+  no_proxy: "{{ no_proxy_hosts | join(',') }},{{ extra_no_proxy_hosts | default('') }}"
+  ES_JAVA_OPTS: >-
+    -Dhttp.proxyHost={{ java_http_proxy }}
+    -Dhttps.proxyHost={{ java_https_proxy }}
+    -Dhttp.proxyPort={{ java_http_proxy_port }}
+    -Dhttps.proxyPort={{ java_https_proxy_port }}
+{% endif %}
+
+{% raw %}
+# Available service states are "started" and "stopped".
+beat_service_states:
+  true:
+    state: restarted
+  false:
+    state: stopped
+
+# Set beat service states based on group membership
+auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+heartbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['utility_all'] | default([])) | string | lower)]['state'] }}"
+journalbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+metricbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
+packetbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['network_hosts'] | default([])) | string | lower)]['state'] }}"
+{% endraw %}
