@@ -17,6 +17,9 @@ Run the setup script on a deployment host which will be managed by the MTC.
 There are many ways to bootstrap an environment with the MTC tooling, the
 easiest way is to simply download the setup script and run it.
 
+If working with a proxy, make sure the `noproxy`, `http_proxy`, and
+`https_proxy` are set, as needed. The setup process will react to proxies making
+
 ``` bash
 curl https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/master/scripts/setup.sh | bash
 ```
@@ -38,5 +41,15 @@ deployment tooling.
 
 ``` bash
 cd /opt/magnanimous-turbo-chainsaw
-bash ./scripts/deploy-elk.sh"
+bash ./scripts/deploy-elk.sh
+```
+
+#### Deploying a new Fleet+OSQuery environment
+
+With the MTC setup, change directories to the scripts path and run the
+deployment tooling.
+
+``` bash
+cd /opt/magnanimous-turbo-chainsaw
+bash ./scripts/deploy-fleet.sh
 ```
