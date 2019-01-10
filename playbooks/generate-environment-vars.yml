@@ -37,10 +37,17 @@
       - "{{ ((groups['rabbitmq_all'] | default([])) | union((groups['log_containers'] | default([])))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
     var_location: "/etc/openstack_deploy"
   tasks:
+    - name: State config directory
+      stat:
+        path: "{{ var_location }}"
+      register: config_dir
+
     - name: Ensure openstack-deploy directory exists
       file:
         path: "{{ var_location }}"
         state: directory
+      when:
+        - not config_dir.stat.exists
 
     - name: Create user_tools_variables.yml
       template:

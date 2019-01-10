@@ -82,12 +82,11 @@ if [[ ! -d "/opt/openstack-ansible-ops" ]]; then
   git clone https://github.com/openstack/openstack-ansible-ops /opt/openstack-ansible-ops
   pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
     PS1=${PS1:-'\\u@\h \\W]\\$'} source bootstrap-embedded-ansible.sh
+    # NOTICE(Cloudnull): This pip install is only required until we can sort out
+    #                    why its needed for installation that use Hashicorp-Vault.
+    pip install pyOpenSSL==16.2.0
   popd
 fi
-
-# NOTICE(Cloudnull): This pip install is only required until we can sort out
-#                    why its needed for installation that use Hashicorp-Vault.
-pip install pyOpenSSL==16.2.0
 
 # Restore the pip config if found
 if [[ -d "${HOME}/.pip.bak" ]]; then
