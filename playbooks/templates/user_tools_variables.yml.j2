@@ -32,7 +32,7 @@ haproxy_extra_services:
       haproxy_balance_type: tcp
 {% endraw %}
 
-{% if (http_proxy_server is defined) and (http_proxy_server != "none://none:none") %}\
+{% if (http_proxy_server is defined) and (http_proxy_server != "none://none:none") %}
 # Proxy Variables
 extra_no_proxy_hosts: "{{ extra_no_proxy_hosts }}"
 deployment_environment_variables:
