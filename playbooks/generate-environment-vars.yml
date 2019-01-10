@@ -54,7 +54,7 @@
         src: templates/user_tools_variables.yml.j2
         dest: "{{ file_location | default(var_location + '/user_tools_variables.yml') }}"
 
-    - name: Create user_tools_variables.yml
+    - name: Create mtc.rc
       template:
         src: templates/mtc.rc.j2
         dest: "{{ lookup('env', 'HOME') }}/.mtc.rc"
