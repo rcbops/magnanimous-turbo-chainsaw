@@ -77,13 +77,12 @@ if [[ -d "${HOME}/.pip" ]]; then
   mv "${HOME}/.pip" "${HOME}/.pip.bak"
 fi
 
-# Source the embedded ansible script
-if [[ -f "/opt/bootstrap-embedded-ansible.sh" ]]; then
-  PS1=${PS1:-'\\u@\h \\W]\\$'} source /opt/bootstrap-embedded-ansible.sh
-else
-  curl -D - https://raw.githubusercontent.com/openstack/openstack-ansible-ops/master/bootstrap-embedded-ansible/bootstrap-embedded-ansible.sh \
-       -o /opt/bootstrap-embedded-ansible.sh
-  PS1=${PS1:-'\\u@\h \\W]\\$'} source /opt/bootstrap-embedded-ansible.sh
+# Source the ops repo
+if [[ ! -d "/opt/openstack-ansible-ops" ]]; then
+  git clone https://github.com/openstack/openstack-ansible-ops /opt/openstack-ansible-ops
+  pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
+    PS1=${PS1:-'\\u@\h \\W]\\$'} source bootstrap-embedded-ansible.sh
+  popd
 fi
 
 # NOTICE(Cloudnull): This pip install is only required until we can sort out
