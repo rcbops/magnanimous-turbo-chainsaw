@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the compatible version of ansible for RPC Toolstack projects
-export ANSIBLE_VERSION="2.6.5"
+export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.6.5}"
 export WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
 export SCRIPT_DIR="${WORKING_DIR}/scripts"
 export PLAYBOOK_DIR="${WORKING_DIR}/playbooks"
