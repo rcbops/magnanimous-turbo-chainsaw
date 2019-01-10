@@ -7,7 +7,7 @@ export SCRIPT_DIR="${WORKING_DIR}/scripts"
 export PLAYBOOK_DIR="${WORKING_DIR}/playbooks"
 
 # Use this environment variable to add additional options to all ansible runs.
-export ANSIBLE_EXTRA_VARS=""
+export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
 
 # Determine OS and validate curl is installed
 if [[ -f "/etc/os-release" ]]; then

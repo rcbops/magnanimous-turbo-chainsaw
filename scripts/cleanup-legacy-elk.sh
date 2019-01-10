@@ -10,9 +10,8 @@ source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/setup-workspace.sh"
 rm /etc/openstack_deploy/env.d/{elasticsearch,kibana,logstash}.yml || true
 rm /etc/openstack_deploy/conf.d/{elasticsearch,kibana,logstash}.yml || true
 
-# Cleanup all legacy systems prior to deployment
-ansible-playbook "/opt/magnanimous-turbo-chainsaw/playbooks/cleanup-legacy-filebeat.yml"
-deactivate
+# Cleanup all legacy filebeat
+source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/cleanup-legacy-filebeat.sh"
 
 pushd /opt/openstack-ansible/playbooks
   # Not needed unless containers exist in inventory
