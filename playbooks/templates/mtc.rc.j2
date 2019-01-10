@@ -1,0 +1,4 @@
+export http_proxy="{{ http_proxy_server }}"
+export https_proxy="{{ https_proxy_server | default(http_proxy_server) }}"
+export no_proxy="{{ no_proxy_hosts | join(',') }},{{ extra_no_proxy_hosts | default('') }}"
+export ES_JAVA_OPTS="-Dhttp.proxyHost={{ java_http_proxy }} -Dhttps.proxyHost={{ java_https_proxy }} -Dhttp.proxyPort={{ java_http_proxy_port }} -Dhttps.proxyPort={{ java_https_proxy_port }}"

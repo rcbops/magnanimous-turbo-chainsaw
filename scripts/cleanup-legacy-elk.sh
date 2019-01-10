@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
+## Variables -----------------------------------------------------------------
+source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/set-vars.sh"
+
+## Main ----------------------------------------------------------------------
+source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/setup-workspace.sh"
+
 # Remove old container definitions and delete from inventory
 rm /etc/openstack_deploy/env.d/{elasticsearch,kibana,logstash}.yml || true
 rm /etc/openstack_deploy/conf.d/{elasticsearch,kibana,logstash}.yml || true
 
 # Cleanup all legacy systems prior to deployment
-source /opt/bootstrap-embedded-ansible.sh
 ansible-playbook "/opt/magnanimous-turbo-chainsaw/playbooks/cleanup-legacy-filebeat.yml"
 deactivate
 
