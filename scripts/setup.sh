@@ -9,7 +9,7 @@ export MTC_RELEASE=${MTC_RELEASE:-master}
 export WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
 export SCRIPT_DIR="${WORKING_DIR}/scripts"
 if [[ -f "${SCRIPT_DIR}/set-vars.sh" ]];  then
-  source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/set-vars.sh"
+  source "${SCRIPT_DIR}/set-vars.sh"
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/set-vars.sh" -o /tmp/set-vars.sh
   source /tmp/set-vars.sh
