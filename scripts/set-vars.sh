@@ -14,3 +14,8 @@ if [[ -f "/etc/os-release" ]]; then
   source /etc/os-release
   export ID="$(echo ${ID} | awk -F'-' '{print $1}')"
 fi
+
+# Append our user vars file to the extra vars options when found.
+if [[ -f "/etc/openstack_deploy/user_tools_variables.yml" ]]; then
+  export ANSIBLE_EXTRA_VARS+=" -e @/etc/openstack_deploy/user_tools_variables.yml"
+fi
