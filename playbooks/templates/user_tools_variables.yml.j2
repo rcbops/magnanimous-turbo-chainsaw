@@ -34,7 +34,7 @@ haproxy_extra_services:
 
 {% if (http_proxy_server is defined) and (http_proxy_server != "none://none:none") %}
 # Proxy Variables
-extra_no_proxy_hosts: "{{ extra_no_proxy_hosts }}"
+extra_no_proxy_hosts: "{{ extra_no_proxy_hosts | default('') }}"
 deployment_environment_variables:
   http_proxy: "{{ http_proxy_server }}"
   https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
