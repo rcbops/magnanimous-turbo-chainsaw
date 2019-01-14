@@ -54,6 +54,8 @@ beat_service_states:
   false:
     state: stopped
 
+elastic_retention_refresh: true
+
 # Set beat service states based on group membership
 auditbeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
 filebeat_service_state: "{{ beat_service_states[(inventory_hostname in (groups['hosts'] | default([])) | string | lower)]['state'] }}"
