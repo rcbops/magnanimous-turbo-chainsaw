@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Set the compatible version of ansible for RPC Toolstack projects
+export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_PATH:-$HOME/magnanimous-turbo-chainsaw-$(date +%Y-%m-%d).log}"
 export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.7.5.0}"
 export WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
 export SCRIPT_DIR="${WORKING_DIR}/scripts"
