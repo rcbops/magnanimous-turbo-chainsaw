@@ -1,0 +1,64 @@
+---
+- name: Get env tools systems
+  hosts: elastic-logstash
+  user: root
+  gather_facts: no
+  vars:
+    read_only_check:
+      index:
+        blocks:
+          read_only_allow_delete: null
+    high_water_mark_settings:
+      transient:
+        cluster:
+          routing:
+            allocation:
+              disk:
+                watermark:
+                  low: "90%"
+                  high: "92%"
+                  flood_stage: "95%"
+          info:
+            update:
+              interval: "5m"
+  tasks:
+    - name: GET cluster status
+      uri:
+        url: "http://127.0.0.1:9200/_cluster/health"
+        method: GET
+        status_code: 200
+      register: cluster_health
+      until: cluster_health is success
+      retries: 6
+      delay: 5
+
+    - name: show cluster health
+      debug:
+        msg: >-
+          Status: '{{ cluster_health.json.status }}',
+          Percentage of active shards: '{{ cluster_health.json.active_shards_percent_as_number }}',
+          Cluster name: '{{ cluster_health.json.cluster_name }}'
+
+    - name: PUT cluster status
+      uri:
+        url: "http://127.0.0.1:9200/_all/_settings"
+        method: PUT
+        body: "{{ read_only_check | to_json }}"
+        status_code: 200,409
+        body_format: json
+      register: cluster_health
+      until: cluster_health is success
+      retries: 6
+      delay: 5
+
+    - name: PUT cluster high water mark
+      uri:
+        url: "http://127.0.0.1:9200/_cluster/settings"
+        method: PUT
+        body: "{{ high_water_mark_settings | to_json }}"
+        status_code: 200,409
+        body_format: json
+      register: cluster_health
+      until: cluster_health is success
+      retries: 6
+      delay: 5
