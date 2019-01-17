@@ -6,10 +6,10 @@ set -e -u -x
 
 ## Variables -----------------------------------------------------------------
 export MTC_RELEASE=${MTC_RELEASE:-master}
-export WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
-export SCRIPT_DIR="${WORKING_DIR}/scripts"
-if [[ -f "${SCRIPT_DIR}/set-vars.sh" ]];  then
-  source "${SCRIPT_DIR}/set-vars.sh"
+export MTC_WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
+export MTC_SCRIPT_DIR="${MTC_WORKING_DIR}/scripts"
+if [[ -f "${MTC_SCRIPT_DIR}/set-vars.sh" ]];  then
+  source "${MTC_SCRIPT_DIR}/set-vars.sh"
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/set-vars.sh" -o /tmp/set-vars.sh
   source /tmp/set-vars.sh
@@ -58,8 +58,8 @@ fi
 
 # Setup git for use with a proxy if one is found.
 if [[ ! -z "${http_proxy:-}" ]] || [[ ! -z "${https_proxy:-}" ]]; then
-  if [[ -f "${SCRIPT_DIR}/setup-proxy.sh" ]];  then
-    bash "${SCRIPT_DIR}/setup-proxy.sh"
+  if [[ -f "${MTC_SCRIPT_DIR}/setup-proxy.sh" ]];  then
+    bash "${MTC_SCRIPT_DIR}/setup-proxy.sh"
   else
     curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/setup-proxy.sh" -o /tmp/setup-proxy.sh
     bash /tmp/setup-proxy.sh
@@ -92,17 +92,17 @@ if [[ -d "${HOME}/.pip.bak" ]]; then
 fi
 
 # Get the environmental tools repo
-if [[ -f "${PLAYBOOK_DIR}/get-mtc.yml" ]];  then
-  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${PLAYBOOK_DIR}/get-mtc.yml"
+if [[ -f "${MTC_PLAYBOOK_DIR}/get-mtc.yml" ]];  then
+  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-mtc.yml"
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/playbooks/get-mtc.yml" -o /tmp/get-mtc.yml
   ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" /tmp/get-mtc.yml
 fi
 
 # Get osa ops tools
-ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${PLAYBOOK_DIR}/get-osa-ops.yml"
+ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
 
 # Generate the required variables
 ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" \
                  -e "http_proxy_server=${http_proxy:-'none://none:none'}" \
-                 ${PLAYBOOK_DIR}/generate-environment-vars.yml
+                 ${MTC_PLAYBOOK_DIR}/generate-environment-vars.yml

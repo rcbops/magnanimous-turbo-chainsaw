@@ -3,9 +3,9 @@
 # Set the compatible version of ansible for RPC Toolstack projects
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_PATH:-$HOME/magnanimous-turbo-chainsaw-$(date +%Y-%m-%d).log}"
 export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.7.5.0}"
-export WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
-export SCRIPT_DIR="${WORKING_DIR}/scripts"
-export PLAYBOOK_DIR="${WORKING_DIR}/playbooks"
+export MTC_WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
+export MTC_SCRIPT_DIR="${MTC_WORKING_DIR}/scripts"
+export MTC_PLAYBOOK_DIR="${MTC_WORKING_DIR}/playbooks"
 
 # Use this environment variable to add additional options to all ansible runs.
 export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"

@@ -26,7 +26,7 @@
   user: root
   gather_facts: no
   vars:
-    : "none://none:none"
+    http_proxy_server: "none://none:none"
     java_http_proxy: "{{ (http_proxy_server).split(':')[1].strip('/') }}"
     java_https_proxy: "{{ (https_proxy_server | default(http_proxy_server)).split(':')[1].strip('/') }}"
     java_http_proxy_port: "{{ (http_proxy_server).split(':')[2].strip('/') }}"
