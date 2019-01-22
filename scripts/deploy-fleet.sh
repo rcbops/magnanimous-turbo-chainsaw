@@ -6,8 +6,8 @@ source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/set-vars.sh"
 
 
 ## Main ----------------------------------------------------------------------
-if [[ -d "/opt/openstack-ansible/playbooks" ]]; then
-  pushd /opt/openstack-ansible/playbooks
+if [[ -d "${OSA_PATH}" ]]; then
+  pushd "${OSA_PATH}"
     openstack-ansible ${ANSIBLE_EXTRA_VARS:-} lxc-containers-create.yml --limit 'lxc_hosts:kolide-fleet_all'
   popd
 fi

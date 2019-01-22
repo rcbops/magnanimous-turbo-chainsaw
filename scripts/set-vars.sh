@@ -20,3 +20,9 @@ fi
 if [[ -f "/etc/openstack_deploy/user_tools_variables.yml" ]]; then
   export ANSIBLE_EXTRA_VARS+=" -e @/etc/openstack_deploy/user_tools_variables.yml"
 fi
+
+if [[ -d "/opt/openstack-ansible/playbooks" ]]; then
+  export OSA_PATH="/opt/openstack-ansible/playbooks"
+elif [[ -d "/opt/rpc-openstack/openstack-ansible/playbooks" ]]; then
+  export OSA_PATH="/opt/rpc-openstack/openstack-ansible/playbooks"
+fi
