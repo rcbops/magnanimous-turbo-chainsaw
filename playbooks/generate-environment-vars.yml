@@ -127,16 +127,21 @@
       with_items: "{{ config_files }}"
       when: rpco_product.stat.exists
 
+    - name: Touch tools secrets file
+      file:
+        path: "/etc/openstack_deploy/user_tools_secrets.yml"
+        state: touch
+
     - name: Add kolide secrets
       lineinfile:
-        path: "/etc/openstack_deploy/user_secrets.yml"
+        path: "/etc/openstack_deploy/user_tools_secrets.yml"
         line: "{{ item }}: {{ lookup('password', '/dev/null length=20') }}"
         regexp: "^{{ item }}.*"
+      ignore_errors: true
       when:
         - rpco_product is defined
-        - not (lookup('file', '/etc/openstack_deploy/user_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
+        - not (lookup('file', '/etc/openstack_deploy/user_tools_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
       with_items:
         - "kolide_fleet_db_password"
         - "kolide_fleet_jwt_key"
         - "kolide_fleet_admin_password"
-        - "galera_root_password"
