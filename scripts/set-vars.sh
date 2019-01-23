@@ -26,4 +26,7 @@ if [[ -d "/opt/openstack-ansible" ]]; then
   export OSA_PATH="/opt/openstack-ansible"
 elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
   export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
+# Assume OSP
+elif [[ -d "/home/stack" && -f "/bin/tripleo-ansible-inventory" ]]; then
+  export OSA_PATH=""
 fi

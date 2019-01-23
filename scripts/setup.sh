@@ -100,8 +100,8 @@ else
 fi
 
 # Get all roles OSA requires
-if [[ -f "${OSA_PATH}/ansible-role-requirements.yml" ]]; then
-  ansible-galaxy install -r ${OSA_PATH}/ansible-role-requirements.yml --ignore-errors --roles-path=${HOME}/ansible_venv/repositories/roles
+if [[ -n ${OSA_PATH} && -f "${OSA_PATH}/ansible-role-requirements.yml" ]]; then
+    ansible-galaxy install -r ${OSA_PATH}/ansible-role-requirements.yml --ignore-errors --roles-path=${HOME}/ansible_venv/repositories/roles
 fi
 
 # Get osa ops tools
