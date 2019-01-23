@@ -53,3 +53,13 @@ deployment tooling.
 cd /opt/magnanimous-turbo-chainsaw
 bash ./scripts/deploy-fleet.sh
 ```
+
+#### Deploying a new Skydive environment
+
+With the MTC setup, change directories to the scripts path and run the
+deployment tooling.
+
+``` bash
+cd /opt/magnanimous-turbo-chainsaw
+bash ./scripts/deploy-skydive.sh
+```
