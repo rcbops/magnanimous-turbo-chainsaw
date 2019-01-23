@@ -139,7 +139,7 @@
         regexp: "^{{ item }}.*"
       ignore_errors: true
       when:
-        - rpco_product is defined
+        - rpco_product.stat.exists
         - not (lookup('file', '/etc/openstack_deploy/user_tools_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
       with_items:
         - "kolide_fleet_db_password"
