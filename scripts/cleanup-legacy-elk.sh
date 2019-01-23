@@ -19,6 +19,6 @@ pushd "${OSA_PATH}"
 
   for i in $(../scripts/inventory-manage.py -l | grep -e apm -e elastic -e kibana -e logstash | awk '{print $2}'); do
     echo "Removing $i"
-    eval "${OSA_PATH}/scripts/inventory-manage.py -r ${i}"
+    eval "${OSA_PATH}/../scripts/inventory-manage.py -r ${i}"
   done
 popd
