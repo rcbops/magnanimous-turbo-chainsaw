@@ -7,7 +7,7 @@ source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/set-vars.sh"
 ## Main ----------------------------------------------------------------------
 if [[ -d "${OSA_PATH}" ]]; then
   pushd "${OSA_PATH}"
-    openstack-ansible ${ANSIBLE_EXTRA_VARS:-} lxc-containers-create.yml --limit 'lxc_hosts:elk_all'
+    ansible-playbook ${ANSIBLE_EXTRA_VARS:-} lxc-containers-create.yml --limit 'lxc_hosts:elk_all'
   popd
 fi
 
