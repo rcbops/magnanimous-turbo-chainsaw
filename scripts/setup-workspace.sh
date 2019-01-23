@@ -28,3 +28,11 @@ pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
 popd
 
 alias deactivate=deactivate_workspace
+
+# Generate cached inventory
+if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
+  # Read inventory and cache it
+  cat /etc/openstack_deploy/openstack_inventory.json | "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
+  # Set the ansible invntory
+  export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
+fi

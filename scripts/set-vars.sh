@@ -27,11 +27,3 @@ if [[ -d "/opt/openstack-ansible/playbooks" ]]; then
 elif [[ -d "/opt/rpc-openstack/openstack-ansible/playbooks" ]]; then
   export OSA_PATH="/opt/rpc-openstack/openstack-ansible/playbooks"
 fi
-
-# Generate cached inventory
-if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
-  cat /etc/openstack_deploy/openstack_inventory.json | "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
-fi
-
-# Set the ansible invntory
-export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
