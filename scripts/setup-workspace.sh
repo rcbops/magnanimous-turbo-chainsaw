@@ -31,8 +31,17 @@ alias deactivate=deactivate_workspace
 
 # Generate cached inventory
 if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
-  # Read inventory and cache it
-  cat /etc/openstack_deploy/openstack_inventory.json | "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
-  # Set the ansible invntory
+  # Obtain the openstack inventory and cache it
+  if [[ -d "/opt/openstack-ansible/inventory" ]]; then
+    ANSIBLE_INVENTORY="/opt/openstack-ansible/inventory" \
+      "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
+  elif [[ -d "/opt/openstack-ansible/playbooks/inventory" ]]; then
+    ANSIBLE_INVENTORY="/opt/openstack-ansible/playbooks/inventory" \
+      "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
+  elif [[ -d "/opt/rpc-openstack/openstack-ansible/playbooks/inventory" ]]; then
+    ANSIBLE_INVENTORY="/opt/rpc-openstack/openstack-ansible/playbooks/inventory" \
+      "${HOME}/ansible_venv/bin/ansible-inventory" --vars --yaml --export --list > /tmp/inventory-cache.yml
+  fi
+  # Set the ansible inventory
   export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
 fi
