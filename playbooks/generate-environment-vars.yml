@@ -108,7 +108,7 @@
           and 'kolide_hosts' configuration manually to continue. file with complex input
           line [ {{ item }} ], line in question [ {{ lookup('file', item) | regex_search("^log_hosts:.*", multiline=True) }} ].
       when:
-        - rpco_product is defined
+        - rpco_product.stat.exists
         - lookup('file', item) | regex_search("^log_hosts:\s\*", multiline=True)
       with_items: "{{ config_files }}"
 
