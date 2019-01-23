@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 ## Variables -----------------------------------------------------------------
 source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/set-vars.sh"
 
@@ -22,6 +21,8 @@ function deactivate_workspace {
 }
 
 ## Main ----------------------------------------------------------------------
+(alias deactivate &> /dev/null && deactivate) || true
+
 pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
   source bootstrap-embedded-ansible.sh
 popd
