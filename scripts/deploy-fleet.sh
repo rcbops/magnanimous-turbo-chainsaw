@@ -16,7 +16,8 @@ source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/setup-workspace.sh"
 
 pushd /opt/openstack-ansible-ops/osquery
     ansible-galaxy install -r ansible-role-requirements.yml --ignore-errors --roles-path=${HOME}/ansible_venv/repositories/roles
-    ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${USER_VARS:-} \
+    ansible-playbook ${ANSIBLE_EXTRA_VARS:-} \
+                     -e @/etc/openstack_deploy/user_tools_secrets.yml \
                      -e @/etc/openstack_deploy/user_tools_variables.yml \
                      -f 75 \
                      site.yml

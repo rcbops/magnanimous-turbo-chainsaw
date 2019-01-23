@@ -1,6 +1,6 @@
 ---
-- name: Cleanup Legacy Filebeat
-  hosts: all
+- name: Cleanup Legacy logstash
+  hosts: log_hosts
   user: root
   gather_facts: no
   handlers:
@@ -28,50 +28,58 @@
       tags:
         - always
 
+    - name: GET cluster status
+      uri:
+        url: "http://127.0.0.1:9600/?pretty"
+        method: GET
+        status_code: 200
+        return_content: yes
+      register: logstash_status
+      until: logstash_status is success
+      retries: 6
+      delay: 5
+      failed_when: false
+
     - name: Exit block
       block:
         - name: Set cleanup fact
           ini_file:
             dest: "/etc/ansible/facts.d/mtc.fact"
             section: "cleanup"
-            option: "filebeat"
+            option: "logstash"
             value: true
 
         - name: End playbook if the system has been cleaned
           meta: end_play
       when:
-        - (ansible_local['mtc']['cleanup']['filebeat'] is defined) and
-          (ansible_local['mtc']['cleanup']['filebeat'] | bool)
+        - ((ansible_local['mtc']['cleanup']['logstash'] is defined) and
+           (ansible_local['mtc']['cleanup']['logstash'] | bool)) or
+          ((logstash_status.json is defined) and
+           (logstash_status.json.version is version('6.0.0', '>=')))
   tasks:
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (LOGSTASH) Remove old maas checks
       find:
         paths: /etc/rackspace-monitoring-agent.conf.d
         file_type: file
-        patterns: "filebeat*"
-      register: filebeat_checks
+        patterns: "*logstash*"
+      register: logstash_checks
 
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (LOGSTASH) Remove old maas checks
       file:
         path: "{{ item.path }}"
         state: absent
-      with_items: "{{ filebeat_checks.files }}"
+      with_items: "{{ logstash_checks.files }}"
       notify:
         - Restart RAX-MaaS
 
-    - name: (FILEBEAT) Stop old beat
-      service:
-        name: filebeat
-        state: stopped
-      ignore_errors: true
-
-    - name: (FILEBEAT) Remove old beat
+    - name: (LOGSTASH) Remove old beat
       package:
-        name: filebeat
+        name: logstash
         state: absent
   post_tasks:
     - name: Set cleanup fact
       ini_file:
         dest: "/etc/ansible/facts.d/mtc.fact"
         section: "cleanup"
-        option: "filebeat"
+        option: "logstash"
         value: true

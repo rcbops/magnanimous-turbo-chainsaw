@@ -1,6 +1,6 @@
 ---
-- name: Cleanup Legacy Filebeat
-  hosts: all
+- name: Cleanup Legacy elasticsearch
+  hosts: log_hosts
   user: root
   gather_facts: no
   handlers:
@@ -28,50 +28,58 @@
       tags:
         - always
 
+    - name: GET cluster status
+      uri:
+        url: "http://127.0.0.1:9200/?pretty"
+        method: GET
+        status_code: 200
+        return_content: yes
+      register: elasticsearch_status
+      until: elasticsearch_status is success
+      retries: 6
+      delay: 5
+      failed_when: false
+
     - name: Exit block
       block:
         - name: Set cleanup fact
           ini_file:
             dest: "/etc/ansible/facts.d/mtc.fact"
             section: "cleanup"
-            option: "filebeat"
+            option: "elasticsearch"
             value: true
 
         - name: End playbook if the system has been cleaned
           meta: end_play
       when:
-        - (ansible_local['mtc']['cleanup']['filebeat'] is defined) and
-          (ansible_local['mtc']['cleanup']['filebeat'] | bool)
+        - ((ansible_local['mtc']['cleanup']['elasticsearch'] is defined) and
+          (ansible_local['mtc']['cleanup']['elasticsearch'] | bool)) or
+          ((elasticsearch_status.json is defined) and
+          (elasticsearch_status.json.version.number is version('6.0.0', '>=')))
   tasks:
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (ELASTICSEARCH) Remove old maas checks
       find:
         paths: /etc/rackspace-monitoring-agent.conf.d
         file_type: file
-        patterns: "filebeat*"
-      register: filebeat_checks
+        patterns: "*elastic*"
+      register: elastic_checks
 
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (ELASTICSEARCH) Remove old maas checks
       file:
         path: "{{ item.path }}"
         state: absent
-      with_items: "{{ filebeat_checks.files }}"
+      with_items: "{{ elastic_checks.files }}"
       notify:
         - Restart RAX-MaaS
 
-    - name: (FILEBEAT) Stop old beat
-      service:
-        name: filebeat
-        state: stopped
-      ignore_errors: true
-
-    - name: (FILEBEAT) Remove old beat
+    - name: (ELASTICSEARCH) Remove old beat
       package:
-        name: filebeat
+        name: elasticsearch
         state: absent
   post_tasks:
     - name: Set cleanup fact
       ini_file:
         dest: "/etc/ansible/facts.d/mtc.fact"
         section: "cleanup"
-        option: "filebeat"
+        option: "elasticsearch"
         value: true

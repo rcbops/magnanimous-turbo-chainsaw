@@ -1,6 +1,6 @@
 ---
-- name: Cleanup Legacy Filebeat
-  hosts: all
+- name: Cleanup Legacy kibana
+  hosts: log_hosts
   user: root
   gather_facts: no
   handlers:
@@ -28,50 +28,64 @@
       tags:
         - always
 
+    - name: GET cluster status
+      uri:
+        url: "http://127.0.0.1:5601/api/status"
+        method: GET
+        status_code: 200
+        return_content: yes
+      register: kibana_status
+      until: kibana_status is success
+      retries: 6
+      delay: 5
+      failed_when: false
+
     - name: Exit block
       block:
         - name: Set cleanup fact
           ini_file:
             dest: "/etc/ansible/facts.d/mtc.fact"
             section: "cleanup"
-            option: "filebeat"
+            option: "kibana"
             value: true
 
         - name: End playbook if the system has been cleaned
           meta: end_play
       when:
-        - (ansible_local['mtc']['cleanup']['filebeat'] is defined) and
-          (ansible_local['mtc']['cleanup']['filebeat'] | bool)
+        - ((ansible_local['mtc']['cleanup']['kibana'] is defined) and
+           (ansible_local['mtc']['cleanup']['kibana'] | bool)) or
+          ((kibana_status.json is defined) and
+           (kibana_status.json.version.number is version('6.0.0', '>=')))
   tasks:
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (KIBANA) Remove old maas checks
       find:
         paths: /etc/rackspace-monitoring-agent.conf.d
         file_type: file
-        patterns: "filebeat*"
-      register: filebeat_checks
+        patterns: "*kibana*"
+      register: kibana_checks
 
-    - name: (FILEBEAT) Remove old maas checks
+    - name: (KIBANA) Remove old maas checks
       file:
         path: "{{ item.path }}"
         state: absent
-      with_items: "{{ filebeat_checks.files }}"
+      with_items: "{{ kibana_checks.files }}"
       notify:
         - Restart RAX-MaaS
 
-    - name: (FILEBEAT) Stop old beat
+    - name: (KIBANA) Stop old beat
       service:
-        name: filebeat
+        name: apache2
         state: stopped
       ignore_errors: true
 
-    - name: (FILEBEAT) Remove old beat
+    - name: (KIBANA) Remove old beat
       package:
-        name: filebeat
+        name: apache2
         state: absent
   post_tasks:
     - name: Set cleanup fact
       ini_file:
         dest: "/etc/ansible/facts.d/mtc.fact"
         section: "cleanup"
-        option: "filebeat"
+        option: "kibana"
         value: true
