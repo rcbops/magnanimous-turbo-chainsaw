@@ -35,8 +35,32 @@
       - localhost
       - 127.0.0.1
       - "{{ ((groups['rabbitmq_all'] | default([])) | union((groups['log_containers'] | default([])))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
-    var_location: "/etc/openstack_deploy"
+    all_var_location:
+      osa: "/etc/openstack_deploy"
+      osp: "/home/stack"
   tasks:
+    - name: Check OSP
+      stat:
+        path: "/etc/rhosp-release"
+      register: osp_check
+
+    - name: Check OSA
+      stat:
+        path: "/etc/openstack-release"
+      register: osa_check
+
+    - name: Set variable path location
+      set_fact:
+        var_location: "{{ all_var_location['osa'] }}"
+      when:
+        - osa_check.stat.exists | bool
+
+    - name: Set variable path location
+      set_fact:
+        var_location: "{{ all_var_location['osp'] }}"
+      when:
+        - osp_check.stat.exists | bool
+
     - name: State config directory
       stat:
         path: "{{ var_location }}"
@@ -47,7 +71,7 @@
         path: "{{ var_location }}"
         state: directory
       when:
-        - not config_dir.stat.exists
+        - not config_dir.stat.exists | bool
 
     - name: Create user_tools_variables.yml
       template:
@@ -61,90 +85,12 @@
       when:
         - http_proxy_server != 'none://none:none'
 
-    - name: Register product variable
-      stat:
-        path: /etc/openstack-release
-      register: rpco_product
-
-    - name: Ensure environment files directory exists
-      file:
-        path: "{{ var_location }}/env.d"
-        state: directory
-      when: rpco_product.stat.exists
-
-    - name: Copy environment files
-      copy:
-        src: 'files/{{ item }}'
-        dest: "{{ var_location }}/env.d/{{ item }}"
-      with_items:
-        - elk.yml
-        - fleet.yml
-      when: rpco_product.stat.exists
-
-    - name: Find log_hosts entries
-      find:
-        paths: /etc/openstack_deploy
-        file_type: file
-        contains: "^log_hosts:.*"
-        patterns: "*.yml"
-        recurse: yes
-      register: log_hosts_entries
-      when: rpco_product.stat.exists
-
-    - name: Set files fact
-      set_fact:
-        config_files: |-
-          {% set paths = [] %}
-          {% for item in log_hosts_entries.files %}
-          {%   set _ = paths.append(item['path']) %}
-          {% endfor %}
-          {{ paths }}
-      when: rpco_product.stat.exists
-
-    - name: Check for basic host line
-      fail:
-        msg: >-
-          The log_hosts entry is more complex than this playbook can deal with. Set the 'log_hosts'
-          and 'kolide_hosts' configuration manually to continue. file with complex input
-          line [ {{ item }} ], line in question [ {{ lookup('file', item) | regex_search("^log_hosts:.*", multiline=True) }} ].
+    - name: Run RPC setup with OpenStack-Ansible
+      include_tasks: common-tasks/setup_rpc.yml
       when:
-        - rpco_product.stat.exists
-        - lookup('file', item) | regex_search("^log_hosts:\s\*", multiline=True)
-      with_items: "{{ config_files }}"
+        - osa_check.stat.exists | bool
 
-    - name: Add log_hosts anchor
-      lineinfile:
-        path: "{{ item }}"
-        line: 'log_hosts: &log_hosts'
-        regexp: '^log_hosts.*'
-      with_items: "{{ config_files }}"
-      when: rpco_product.stat.exists
-
-    - name: Add kolide_hosts entries
-      lineinfile:
-        path: "{{ item }}"
-        line: 'kolide_hosts: *log_hosts'
-      with_items: "{{ config_files }}"
-      when: rpco_product.stat.exists
-
-    - name: Touch tools secrets file
-      file:
-        path: "/etc/openstack_deploy/user_tools_secrets.yml"
-        state: touch
-
-    - name: Add kolide secrets
-      lineinfile:
-        path: "/etc/openstack_deploy/user_tools_secrets.yml"
-        line: "{{ item }}: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
-        regexp: "^{{ item }}.*"
-      ignore_errors: true
-      when:
-        - rpco_product.stat.exists
-        - not (lookup('file', '/etc/openstack_deploy/user_tools_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
-      with_items:
-        - "kolide_fleet_db_password"
-        - "kolide_fleet_jwt_key"
-        - "kolide_fleet_admin_password"
-        - "kolide_galera_root_password"
-        - "grafana_admin_password"
-        - "skydive_password"
+    # - name: Run RPC setup with OSP
+    #   include_tasks: common-tasks/setup_osp.yml
+    #   when:
+    #     - osp_check.stat.exists | bool

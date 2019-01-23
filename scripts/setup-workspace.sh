@@ -44,4 +44,7 @@ if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
   fi
   # Set the ansible inventory
   export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
+  if [[ -f "/etc/openstack_deploy/inventory.ini" ]]; then
+    export ANSIBLE_INVENTORY="/etc/openstack_deploy/inventory.ini,${ANSIBLE_INVENTORY}"
+  fi
 fi

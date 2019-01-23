@@ -22,8 +22,8 @@ if [[ -f "/etc/openstack_deploy/user_tools_variables.yml" ]]; then
 fi
 
 # Define the playbook directory
-if [[ -d "/opt/openstack-ansible/playbooks" ]]; then
-  export OSA_PATH="/opt/openstack-ansible/playbooks"
-elif [[ -d "/opt/rpc-openstack/openstack-ansible/playbooks" ]]; then
-  export OSA_PATH="/opt/rpc-openstack/openstack-ansible/playbooks"
+if [[ -d "/opt/openstack-ansible" ]]; then
+  export OSA_PATH="/opt/openstack-ansible"
+elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
+  export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 fi

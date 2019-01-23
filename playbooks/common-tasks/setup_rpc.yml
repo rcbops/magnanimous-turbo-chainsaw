@@ -1,0 +1,49 @@
+---
+
+- name: Find log_hosts entries
+  find:
+    paths: /etc/openstack_deploy
+    file_type: file
+    contains: "^log_hosts:.*"
+    patterns: "*.yml"
+    recurse: yes
+  register: log_hosts_entries
+
+- name: Set files fact
+  set_fact:
+    config_files: |-
+      {% set paths = [] %}
+      {% for item in log_hosts_entries.files %}
+      {%   set _ = paths.append(item['path']) %}
+      {% endfor %}
+      {{ paths }}
+
+- name: Check for basic host line
+  fail:
+    msg: >-
+      The log_hosts entry is more complex than this playbook can deal with. Set the 'log_hosts'
+      and 'kolide_hosts' configuration manually to continue. file with complex input
+      line [ {{ item }} ], line in question [ {{ lookup('file', item) | regex_search("^log_hosts:.*", multiline=True) }} ].
+  when:
+    - lookup('file', item) | regex_search("^log_hosts:\s\*", multiline=True)
+  with_items: "{{ config_files }}"
+
+- name: Touch tools secrets file
+  file:
+    path: "/etc/openstack_deploy/user_tools_secrets.yml"
+    state: touch
+
+- name: Add kolide secrets
+  lineinfile:
+    path: "/etc/openstack_deploy/user_tools_secrets.yml"
+    line: "{{ item }}: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
+    regexp: "^{{ item }}.*"
+  ignore_errors: true
+    - not (lookup('file', '/etc/openstack_deploy/user_tools_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
+  with_items:
+    - "kolide_fleet_db_password"
+    - "kolide_fleet_jwt_key"
+    - "kolide_fleet_admin_password"
+    - "kolide_galera_root_password"
+    - "grafana_admin_password"
+    - "skydive_password"

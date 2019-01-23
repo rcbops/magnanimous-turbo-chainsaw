@@ -99,8 +99,10 @@ else
   ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" /tmp/get-mtc.yml
 fi
 
-# Get any roles the MTC requires
-ansible-galaxy install -r "${MTC_PLAYBOOK_DIR}/ansible-role-requirements.yml" --ignore-errors --roles-path="${HOME}/ansible_venv/repositories/roles"
+# Get all roles OSA requires
+if [[ -f "${OSA_PATH}/ansible-role-requirements.yml" ]]; then
+  ansible-galaxy install -r ${OSA_PATH}/ansible-role-requirements.yml --ignore-errors --roles-path=${HOME}/ansible_venv/repositories/roles
+fi
 
 # Get osa ops tools
 ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
