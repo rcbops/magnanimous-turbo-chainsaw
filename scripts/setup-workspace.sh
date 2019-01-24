@@ -55,3 +55,8 @@ if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
     export ANSIBLE_INVENTORY="/etc/openstack_deploy/inventory.ini,${ANSIBLE_INVENTORY}"
   fi
 fi
+
+# Set ceph ansible inventory
+if [[ -f "/tmp/inventory-ceph.ini" ]]; then
+  export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY},/tmp/inventory-ceph.ini"
+fi
