@@ -50,8 +50,8 @@
       command: >-
         /opt/elasticsearch-curator/bin/curator
         --config /var/lib/curator/curator.yml
-        {{ item.path }}
-      loop: "{{ curator_actions.files }}"
+        {{ item }}
+      loop: "{{ curator_actions.files | map(attribute='path') | list }}"
 
     - name: PUT cluster status
       uri:
