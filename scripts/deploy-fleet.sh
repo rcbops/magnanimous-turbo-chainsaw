@@ -20,6 +20,7 @@ pushd /opt/openstack-ansible-ops/osquery
                      ${MTC_BLACKLIST} \
                      -e @/etc/openstack_deploy/user_tools_secrets.yml \
                      -e @/etc/openstack_deploy/user_tools_variables.yml \
+                     -e 'galera_ignore_cluster_state=true' \
                      -f 75 \
                      site.yml
 popd
