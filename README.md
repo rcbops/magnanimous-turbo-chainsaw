@@ -64,15 +64,7 @@ cd /opt/magnanimous-turbo-chainsaw
 bash ./scripts/cleanup-legacy-elk.sh
 ```
 
-#### Deploying a new ELK environment
-
-With the MTC setup, change directories to the scripts path and run the
-deployment tooling.
-
-``` bash
-cd /opt/magnanimous-turbo-chainsaw
-bash ./scripts/deploy-elk.sh
-```
+----
 
 #### Deploying a new Fleet+OSQuery environment
 
@@ -82,6 +74,16 @@ deployment tooling.
 ``` bash
 cd /opt/magnanimous-turbo-chainsaw
 bash ./scripts/deploy-fleet.sh
+```
+
+#### Deploying a new ELK environment
+
+With the MTC setup, change directories to the scripts path and run the
+deployment tooling.
+
+``` bash
+cd /opt/magnanimous-turbo-chainsaw
+bash ./scripts/deploy-elk.sh
 ```
 
 #### Deploying a new Skydive environment

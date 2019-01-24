@@ -39,6 +39,20 @@
           Percentage of active shards: '{{ cluster_health.json.active_shards_percent_as_number }}',
           Cluster name: '{{ cluster_health.json.cluster_name }}'
 
+    - name: Find index action(s)
+      find:
+        paths: "/var/lib/curator"
+        patterns: "actions-*"
+        file_type: file
+      register: curator_actions
+
+    - name: Execute index action(s)
+      command: >-
+        /opt/elasticsearch-curator/bin/curator
+        --config /var/lib/curator/curator.yml
+        {{ item.path }}
+      loop: "{{ curator_actions.files }}"
+
     - name: PUT cluster status
       uri:
         url: "http://127.0.0.1:9200/_all/_settings"

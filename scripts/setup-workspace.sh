@@ -37,13 +37,13 @@ alias deactivate=deactivate_workspace
 if [[ -f "/etc/openstack_deploy/openstack_inventory.json" ]]; then
   # Obtain the openstack inventory and cache it
   if [[ -f "${OSA_PATH}/inventory/dynamic_inventory.py" ]]; then
-    ANSIBLE_INVENTORY="/opt/openstack-ansible/inventory" \
+    ANSIBLE_INVENTORY="${OSA_PATH}/inventory/dynamic_inventory.py" \
       "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
                                                    --yaml \
                                                    --export \
                                                    --list > /tmp/inventory-cache.yml
   elif [[ -f "${OSA_PATH}/playbooks/inventory/dynamic_inventory.py" ]]; then
-    ANSIBLE_INVENTORY="/opt/openstack-ansible/playbooks/inventory" \
+    ANSIBLE_INVENTORY="${OSA_PATH}/playbooks/inventory/dynamic_inventory.py" \
       "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
                                                    --yaml \
                                                    --export \
