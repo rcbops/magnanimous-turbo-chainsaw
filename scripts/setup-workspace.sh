@@ -9,12 +9,16 @@ fi
 
 ## Functional ----------------------------------------------------------------
 function deactivate_workspace {
-  deactivate || true
+  deactivate &> /dev/null || true
   deactivate_embedded_venv || true
   if [[ -f "${ANSIBLE_LOG_PATH}" ]]; then
-    tar -czf "${ANSIBLE_LOG_PATH}.tar.gz" "${ANSIBLE_LOG_PATH}"
+    tar -czf "${ANSIBLE_LOG_PATH}.tar.gz" "${ANSIBLE_LOG_PATH}" &> /dev/null
     rm "${ANSIBLE_LOG_PATH}"
     unset ANSIBLE_LOG_PATH
+  fi
+  # Remove host blacklist file if found
+  if [[ -f "/tmp/mtc.blacklist" ]]; then
+    rm /tmp/mtc.blacklist
   fi
   unalias deactivate > /dev/null 2&>1
   unalias deactivate_embedded_venv > /dev/null 2&>1

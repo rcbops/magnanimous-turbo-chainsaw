@@ -6,6 +6,7 @@ export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.7.5.0}"
 export MTC_WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
 export MTC_SCRIPT_DIR="${MTC_WORKING_DIR}/scripts"
 export MTC_PLAYBOOK_DIR="${MTC_WORKING_DIR}/playbooks"
+export MTC_BLACKLIST=""
 
 # Use this environment variable to add additional options to all ansible runs.
 export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
@@ -29,4 +30,9 @@ elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
 # Assume OSP
 elif [[ -d "/home/stack" && -f "/bin/tripleo-ansible-inventory" ]]; then
   export OSA_PATH=""
+fi
+
+# Append limit blacklist to the runtime
+if [[ -f "/tmp/mtc.blacklist" ]]; then
+  export MTC_BLACKLIST="--limit @/tmp/mtc.blacklist"
 fi

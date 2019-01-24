@@ -93,10 +93,10 @@ fi
 
 # Get the environmental tools repo
 if [[ -f "${MTC_PLAYBOOK_DIR}/get-mtc.yml" ]];  then
-  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-mtc.yml"
+  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-mtc.yml"
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/playbooks/get-mtc.yml" -o /tmp/get-mtc.yml
-  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" /tmp/get-mtc.yml
+  ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" /tmp/get-mtc.yml
 fi
 
 # Get all roles OSA requires
@@ -105,9 +105,9 @@ if [[ -n ${OSA_PATH} && -f "${OSA_PATH}/ansible-role-requirements.yml" ]]; then
 fi
 
 # Get osa ops tools
-ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
+ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
 
 # Generate the required variables
-ansible-playbook ${ANSIBLE_EXTRA_VARS:-} -i "${ANSIBLE_INVENTORY:-localhost,}" \
+ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" \
                  -e "http_proxy_server=${http_proxy:-'none://none:none'}" \
                  ${MTC_PLAYBOOK_DIR}/generate-environment-vars.yml

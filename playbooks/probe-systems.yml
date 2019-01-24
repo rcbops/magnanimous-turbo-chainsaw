@@ -1,0 +1,25 @@
+---
+- name: Probe all nodes
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  tasks:
+    - name: Ping host
+      command: "ping -c 1 {{ item }}"
+      loop: "{{ groups['all'] }}"
+      register: ping_hosts
+      until: ping_hosts is success
+      retries: 3
+      delay: 0
+      ignore_errors: true
+
+    - name: Create black list
+      copy:
+        content: |-
+          {% for item in ping_hosts.results %}
+          {%   if item.rc != 0 %}
+          !{{ item.item }}
+          {%   endif %}
+          {% endfor %}
+        dest: /tmp/mtc.blacklist

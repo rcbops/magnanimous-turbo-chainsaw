@@ -15,6 +15,7 @@ source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/setup-workspace.sh"
 
 pushd /opt/openstack-ansible-ops/elk_metrics_6x
     ansible-playbook ${ANSIBLE_EXTRA_VARS:-} \
+                     ${MTC_BLACKLIST} \
                      -e @/etc/openstack_deploy/user_tools_secrets.yml \
                      -e @/etc/openstack_deploy/user_tools_variables.yml \
                      -f 75 \
