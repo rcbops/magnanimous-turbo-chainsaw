@@ -27,9 +27,12 @@ if [[ -d "/opt/openstack-ansible" ]]; then
   export OSA_PATH="/opt/openstack-ansible"
 elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
   export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
-# Assume OSP
-elif [[ -d "/home/stack" && -f "/bin/tripleo-ansible-inventory" ]]; then
+else
   export OSA_PATH=""
+fi
+
+if [[ -d "/home/stack" ]] && [[ -f "/bin/tripleo-ansible-inventory" ]]; then
+  export OSP_PATH=""  # unimplemented
 fi
 
 # Append limit blacklist to the runtime
