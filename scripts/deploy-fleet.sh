@@ -15,7 +15,7 @@ fi
 source "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/setup-workspace.sh"
 
 pushd /opt/openstack-ansible-ops/osquery
-    ansible-galaxy install -r ansible-role-requirements.yml --ignore-errors --roles-path=${HOME}/ansible_venv/repositories/roles
+    ansible-galaxy install -r ansible-role-requirements.yml --ignore-errors --force --roles-path=${HOME}/ansible_venv/repositories/roles
     ansible-playbook ${ANSIBLE_EXTRA_VARS:-} \
                      ${MTC_BLACKLIST} \
                      -e @/etc/openstack_deploy/user_tools_secrets.yml \
@@ -24,3 +24,5 @@ pushd /opt/openstack-ansible-ops/osquery
                      -f 75 \
                      site.yml
 popd
+
+deactivate

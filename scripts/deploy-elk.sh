@@ -21,3 +21,5 @@ pushd /opt/openstack-ansible-ops/elk_metrics_6x
                      -f 75 \
                      site.yml
 popd
+
+deactivate

@@ -4,6 +4,8 @@
   connection: local
   gather_facts: no
   become: no
+  vars:
+    user_defined_blacklist: []
   tasks:
     - name: Ping host
       command: "ping -c 1 {{ item }}"
@@ -17,7 +19,7 @@
     - name: Create black list
       copy:
         content: |-
-          {% for item in ping_hosts.results %}
+          {% for item in ping_hosts.results | union(user_defined_blacklist) %}
           {%   if item.rc != 0 %}
           !{{ item.item }}
           {%   endif %}
