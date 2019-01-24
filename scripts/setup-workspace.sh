@@ -20,8 +20,8 @@ function deactivate_workspace {
   if [[ -f "/tmp/mtc.blacklist" ]]; then
     rm /tmp/mtc.blacklist
   fi
-  unalias deactivate > /dev/null 2&>1
-  unalias deactivate_embedded_venv > /dev/null 2&>1
+  unalias deactivate &> /dev/null
+  unalias deactivate_embedded_venv &> /dev/null
 }
 
 ## Main ----------------------------------------------------------------------
