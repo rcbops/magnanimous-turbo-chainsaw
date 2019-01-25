@@ -95,3 +95,17 @@ deployment tooling.
 cd /opt/magnanimous-turbo-chainsaw
 bash ./scripts/deploy-skydive.sh
 ```
+
+----
+
+### Local testing
+
+All of the tools covered by the MTC can be tested on a local test instance.
+Recommended specifcations are >= 4GiB of RAM with 32GiB or disk space on root.
+
+To spin up a test instance, run the following command.
+
+``` bash
+cd /opt/magnanimous-turbo-chainsaw
+bash ./tests/run-tests.sh
+```
