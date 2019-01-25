@@ -27,6 +27,7 @@ if [[ -d "/opt/openstack-ansible" ]]; then
   export OSA_PATH="/opt/openstack-ansible"
 elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
   export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
+  echo -e "# MTC managed\n\n[rpco]\nlocalhost ansible_host=127.0.0.1 ansible_connection=local\n" > /opt/rpc-openstack/inventory.ini
 else
   export OSA_PATH=""
 fi

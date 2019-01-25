@@ -60,3 +60,8 @@ fi
 if [[ -f "/tmp/inventory-ceph.ini" ]]; then
   export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY},/tmp/inventory-ceph.ini"
 fi
+
+# Set rpco ansible inventory
+if [[ -f "/opt/rpc-openstack/inventory.ini" ]]; then
+  export ANSIBLE_INVENTORY="/opt/rpc-openstack/inventory.ini,${ANSIBLE_INVENTORY}"
+fi
