@@ -1,0 +1,9 @@
+---
+
+mtc_password_items:
+  - "kolide_fleet_db_password"
+  - "kolide_fleet_jwt_key"
+  - "kolide_fleet_admin_password"
+  - "kolide_galera_root_password"
+  - "grafana_admin_password"
+  - "skydive_password"

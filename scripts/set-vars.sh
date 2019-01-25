@@ -8,6 +8,10 @@ export MTC_SCRIPT_DIR="${MTC_WORKING_DIR}/scripts"
 export MTC_PLAYBOOK_DIR="${MTC_WORKING_DIR}/playbooks"
 export MTC_BLACKLIST=""
 
+# The MTC vars path defaults to /tmp and will be reset based on the deployment
+# environment.
+export MTC_VARS_PATH="/tmp"
+
 # Use this environment variable to add additional options to all ansible runs.
 export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
 
@@ -25,9 +29,11 @@ fi
 # Define the playbook directory
 if [[ -d "/opt/openstack-ansible" ]]; then
   export OSA_PATH="/opt/openstack-ansible"
+  export MTC_VARS_PATH="/etc/openstack_deploy"
 elif [[ -d "/opt/rpc-openstack/openstack-ansible" ]]; then
   export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
   echo -e "# MTC managed\n\n[rpco]\nlocalhost ansible_host=127.0.0.1 ansible_connection=local\n" > /opt/rpc-openstack/inventory.ini
+  export MTC_VARS_PATH="/etc/openstack_deploy"
 else
   export OSA_PATH=""
 fi

@@ -1,0 +1,12 @@
+---
+
+- name: Create test inventory
+  hosts: localhost
+  connection: local
+  user: root
+  gather_facts: no
+  tasks:
+    - name: Ensure secrets exist
+      copy:
+        src: inventory-test.yml
+        dest: /tmp/inventory-test.yml

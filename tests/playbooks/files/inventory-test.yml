@@ -1,0 +1,24 @@
+---
+
+all_systems:
+  vars:
+    ansible_become: yes
+    ansible_become_user: "root"
+    ansible_user: "root"
+    physical_host: "{{ inventory_hostname }}"
+  children:
+    all_hosts:
+      children:
+        hosts:  # OSA hosts group shim
+          hosts:
+            localhost:
+              ansible_host: localhost
+              ansible_connection: local
+
+    log_hosts:
+      children:
+        all_hosts: {}
+
+    utility_all:
+      children:
+        all_hosts: {}

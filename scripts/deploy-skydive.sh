@@ -18,8 +18,8 @@ pushd /opt/openstack-ansible-ops/skydive
     ansible-galaxy install -r ansible-role-requirements.yml --ignore-errors --force --roles-path=${HOME}/ansible_venv/repositories/roles
     ansible-playbook ${ANSIBLE_EXTRA_VARS:-} \
                      ${MTC_BLACKLIST} \
-                     -e @/etc/openstack_deploy/user_tools_secrets.yml \
-                     -e @/etc/openstack_deploy/user_tools_variables.yml \
+                     -e @${MTC_VARS_PATH}/user_tools_secrets.yml \
+                     -e @${MTC_VARS_PATH}/user_tools_variables.yml \
                      -f 75 \
                      site.yml
 popd

@@ -27,23 +27,3 @@
   when:
     - lookup('file', item) | regex_search("^log_hosts:\s\*", multiline=True)
   with_items: "{{ config_files }}"
-
-- name: Touch tools secrets file
-  file:
-    path: "/etc/openstack_deploy/user_tools_secrets.yml"
-    state: touch
-
-- name: Add kolide secrets
-  lineinfile:
-    path: "/etc/openstack_deploy/user_tools_secrets.yml"
-    line: "{{ item }}: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
-    regexp: "^{{ item }}.*"
-  ignore_errors: true
-    - not (lookup('file', '/etc/openstack_deploy/user_tools_secrets.yml') | regex_search("^" + item + ".*", multiline=True))
-  with_items:
-    - "kolide_fleet_db_password"
-    - "kolide_fleet_jwt_key"
-    - "kolide_fleet_admin_password"
-    - "kolide_galera_root_password"
-    - "grafana_admin_password"
-    - "skydive_password"

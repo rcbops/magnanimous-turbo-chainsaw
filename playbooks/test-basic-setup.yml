@@ -1,0 +1,21 @@
+---
+
+- name: Create user test tools variables file
+  hosts: localhost
+  connection: local
+  user: root
+  gather_facts: no
+  vars:
+    var_location: /tmp
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: Ensure secrets exist
+      include_tasks: common-tasks/setup_secrets.yml
+      vars:
+        var_psth: "{{ var_location }}"
+
+    - name: Touch tools secrets file
+      template:
+        src: "user_tools_variables.yml.j2"
+        dest: "{{ var_location }}/user_tools_variables.yml"

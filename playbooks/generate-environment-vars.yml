@@ -38,6 +38,8 @@
     all_var_location:
       osa: "/etc/openstack_deploy"
       osp: "/home/stack"
+  vars_files:
+    - vars/main.yml
   tasks:
     - name: Check OSP
       stat:
@@ -100,10 +102,19 @@
 
     - name: Run RPC setup with OpenStack-Ansible
       include_tasks: common-tasks/setup_rpc.yml
+      vars:
+        var_psth: "{{ var_location }}"
       when:
         - osa_check.stat.exists | bool
 
     # - name: Run RPC setup with OSP
-    #   include_tasks: common-tasks/setup_osp.yml
+    #   include_tasks: common-tasks/setup_osp.yml  # unimplemented
+    #   vars:
+    #     var_psth: "{{ var_location }}"
     #   when:
     #     - osp_check.stat.exists | bool
+
+    - name: Ensure secrets exist
+      include_tasks: common-tasks/setup_secrets.yml
+      vars:
+        var_psth: "{{ var_location }}"
