@@ -61,6 +61,19 @@
       when:
         - osp_check.stat.exists | bool
 
+    - name: Setup exit
+      block:
+        - name: Break point notice
+          debug:
+            msg: >-
+              No Known deployment configuration has been detected. No variables
+              will be generated.
+
+        - name: End play if no known deployment configuration is detected
+          meta: end_play
+      when:
+        - var_location is undefined
+
     - name: State config directory
       stat:
         path: "{{ var_location }}"
