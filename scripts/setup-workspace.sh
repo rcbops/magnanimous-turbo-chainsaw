@@ -18,6 +18,9 @@ function deactivate_workspace {
     unset ANSIBLE_LOG_PATH
     unset ANSIBLE_EXTRA_VARS
     unset ANSIBLE_INVENTORY
+    unset ANSIBLE_GATHERING
+    unset ANSIBLE_CACHE_PLUGIN
+    unset ANSIBLE_CACHE_PLUGIN_CONNECTION
     unset MTC_WORKING_DIR
     unset MTC_SCRIPT_DIR
     unset MTC_PLAYBOOK_DIR
@@ -80,4 +83,9 @@ else
   if [[ -f "/opt/rpc-openstack/inventory.ini" ]]; then
     export ANSIBLE_INVENTORY="/opt/rpc-openstack/inventory.ini,${ANSIBLE_INVENTORY}"
   fi
+fi
+
+# When executing within an OSP environment make sure the connection plugin is not modified from default
+if [[ -f "/etc/rhosp-release" ]]; then
+  unset ANSIBLE_CONNECTION_PLUGINS
 fi
