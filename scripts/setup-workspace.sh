@@ -21,10 +21,12 @@ function deactivate_workspace {
     unset ANSIBLE_GATHERING
     unset ANSIBLE_CACHE_PLUGIN
     unset ANSIBLE_CACHE_PLUGIN_CONNECTION
+    unset ANSIBLE_PRIVATE_KEY_FILE
     unset MTC_WORKING_DIR
     unset MTC_SCRIPT_DIR
     unset MTC_PLAYBOOK_DIR
     unset MTC_BLACKLIST
+    unset USER_ALL_VARS
   fi
   # Remove host blacklist file if found
   if [[ -f "/tmp/mtc.blacklist" ]]; then
@@ -85,7 +87,20 @@ else
   fi
 fi
 
+# Set static user all vars
+export USER_ALL_VARS=""
+
+if [[ -d "/etc/openstack_deploy" ]]; then
+  export USER_ALL_VARS+="$(for i in $(ls -1 /etc/openstack_deploy/user_*.yml); do echo -n "-e@$i "; done)"
+fi
+
 # When executing within an OSP environment make sure the connection plugin is not modified from default
 if [[ -f "/etc/rhosp-release" ]]; then
   unset ANSIBLE_CONNECTION_PLUGINS
+  if [[ -d "/home/stack" ]]; then
+    export USER_ALL_VARS+="$(for i in $(ls -1 /home/stack/user_*.yml); do echo -n "-e@$i "; done)"
+    if [[ -f "/home/stack/.ssh/id_rsa" ]]; then
+      export ANSIBLE_PRIVATE_KEY_FILE="/home/stack/.ssh/id_rsa"
+    fi
+  fi
 fi
