@@ -22,6 +22,7 @@ function deactivate_workspace {
     unset ANSIBLE_CACHE_PLUGIN
     unset ANSIBLE_CACHE_PLUGIN_CONNECTION
     unset ANSIBLE_PRIVATE_KEY_FILE
+    unset ANSIBLE_STDOUT_CALLBACK
     unset MTC_WORKING_DIR
     unset MTC_SCRIPT_DIR
     unset MTC_PLAYBOOK_DIR
