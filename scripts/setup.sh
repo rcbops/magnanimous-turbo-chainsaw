@@ -77,6 +77,11 @@ fi
 # Source the ops repo
 if [[ ! -d "/opt/openstack-ansible-ops" ]]; then
   git clone https://github.com/openstack/openstack-ansible-ops /opt/openstack-ansible-ops
+elif [[ ! -d "/opt/openstack-ansible-ops/bootstrap-embedded-ansible" ]]; then
+  pushd /opt/openstack-ansible-ops
+    git fetch --all
+    git reset --hard origin/master
+  popd
 fi
 
 pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
