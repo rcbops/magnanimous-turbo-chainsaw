@@ -60,21 +60,29 @@ else
     if [[ -f "${OSA_PATH}/inventory/dynamic_inventory.py" ]]; then
       ANSIBLE_INVENTORY="${OSA_PATH}/inventory/dynamic_inventory.py" \
         "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
-                                                    --yaml \
-                                                    --export \
-                                                    --list > /tmp/inventory-cache.yml
+                                                     --yaml \
+                                                     --export \
+                                                     --list > /tmp/inventory-cache.yml
     elif [[ -f "${OSA_PATH}/playbooks/inventory/dynamic_inventory.py" ]]; then
       ANSIBLE_INVENTORY="${OSA_PATH}/playbooks/inventory/dynamic_inventory.py" \
         "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
-                                                    --yaml \
-                                                    --export \
-                                                    --list > /tmp/inventory-cache.yml
+                                                     --yaml \
+                                                     --export \
+                                                     --list > /tmp/inventory-cache.yml
     fi
-    # Set the ansible inventory
     export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
     if [[ -f "/etc/openstack_deploy/inventory.ini" ]]; then
       export ANSIBLE_INVENTORY="/etc/openstack_deploy/inventory.ini,${ANSIBLE_INVENTORY}"
     fi
+
+  elif [[ -d "/home/stack" ]] && [[ -f "/bin/tripleo-ansible-inventory" ]]; then
+        ANSIBLE_INVENTORY="${OSP_PATH}/inventory/rpcr_dynamic_inventory.py" \
+          "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
+                                                       --yaml \
+                                                       --export \
+                                                       --list > /tmp/inventory-cache.yml
+    # Set the ansible inventory
+    export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
   fi
 
   # Set ceph ansible inventory
