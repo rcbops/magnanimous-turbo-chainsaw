@@ -43,7 +43,11 @@ else
 fi
 
 if [[ -d "/home/stack" ]] && [[ -f "/bin/tripleo-ansible-inventory" ]]; then
-  export OSP_PATH=""  # unimplemented
+  export OSP_PATH="${OSP_PATH:-/opt/rpc-maas}"
+  export STACK_HOME="${STACK_HOME:-/home/stack}"
+  export MTC_VARS_PATH="${STACK_HOME}"
+  source "${STACK_HOME}/stackrc"
+  export OS_CACERT="${OS_CACERT:-/etc/pki/tls/certs/ca-bundle.crt}"
 fi
 
 # Append limit blacklist to the runtime
