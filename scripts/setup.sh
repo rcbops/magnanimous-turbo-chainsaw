@@ -8,12 +8,6 @@ set -e -u -x
 export MTC_RELEASE=${MTC_RELEASE:-master}
 export MTC_WORKING_DIR="/opt/magnanimous-turbo-chainsaw"
 export MTC_SCRIPT_DIR="${MTC_WORKING_DIR}/scripts"
-if [[ -f "${MTC_SCRIPT_DIR}/set-vars.sh" ]];  then
-  source "${MTC_SCRIPT_DIR}/set-vars.sh"
-else
-  curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/set-vars.sh" -o /tmp/set-vars.sh
-  source /tmp/set-vars.sh
-fi
 
 
 ## functions -----------------------------------------------------------------
@@ -56,6 +50,13 @@ if [[ ! -e $(which curl) ]]; then
   fi
 fi
 
+if [[ -f "${MTC_SCRIPT_DIR}/set-vars.sh" ]];  then
+  source "${MTC_SCRIPT_DIR}/set-vars.sh"
+else
+  curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/set-vars.sh" -o /tmp/set-vars.sh
+  source /tmp/set-vars.sh
+fi
+
 # Setup git for use with a proxy if one is found.
 if [[ ! -z "${http_proxy:-}" ]] || [[ ! -z "${https_proxy:-}" ]]; then
   if [[ -f "${MTC_SCRIPT_DIR}/setup-proxy.sh" ]];  then
@@ -84,12 +85,16 @@ elif [[ ! -d "/opt/openstack-ansible-ops/bootstrap-embedded-ansible" ]]; then
   popd
 fi
 
-pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
-  PS1=${PS1:-'\\u@\h \\W]\\$'} source bootstrap-embedded-ansible.sh
+if [[ -f "${MTC_SCRIPT_DIR}/setup-workspace.sh" ]];  then
+  source "${MTC_SCRIPT_DIR}/setup-workspace.sh"
+else
+  curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/setup-workspace.sh" -o /tmp/setup-workspace.sh
+  source /tmp/setup-workspace.sh
+
   # NOTICE(Cloudnull): This pip install is only required until we can sort out
   #                    why its needed for installation that use Hashicorp-Vault.
   pip install pyOpenSSL==16.2.0
-popd
+fi
 
 # Restore the pip config if found
 if [[ -d "${HOME}/.pip.bak" ]]; then
