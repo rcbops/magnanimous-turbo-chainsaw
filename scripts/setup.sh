@@ -86,10 +86,10 @@ elif [[ ! -d "/opt/openstack-ansible-ops/bootstrap-embedded-ansible" ]]; then
 fi
 
 if [[ -f "${MTC_SCRIPT_DIR}/setup-workspace.sh" ]];  then
-  source "${MTC_SCRIPT_DIR}/setup-workspace.sh"
+  PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source "${MTC_SCRIPT_DIR}/setup-workspace.sh"
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/setup-workspace.sh" -o /tmp/setup-workspace.sh
-  source /tmp/setup-workspace.sh
+  PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source /tmp/setup-workspace.sh
 
   # NOTICE(Cloudnull): This pip install is only required until we can sort out
   #                    why its needed for installation that use Hashicorp-Vault.
