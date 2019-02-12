@@ -50,7 +50,7 @@ if [[ -f "/tmp/inventory-test.yml" ]]; then
   if [[ -f "/tmp/user_tools_secrets.yml" ]] && [[ ! "$(echo -e '${ANSIBLE_EXTRA_VARS}' | grep -q 'tmp/user_tools_secrets')" ]]; then
     export ANSIBLE_EXTRA_VARS+=" -e @/tmp/user_tools_secrets.yml"
   fi
-  export ANSIBLE_INVENTORY="/tmp/inventory-test.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
+  export ANSIBLE_INVENTORY="/tmp/inventory-test.yml,${MTC_WORKING_DIR}/overlay-inventory.yml"
   echo -e "\n#### VARS ####\nINVENTORY: ${ANSIBLE_INVENTORY}"
   echo -e "EXTRA_VARS: ${ANSIBLE_EXTRA_VARS}\n#### VARS ####\n"
 else
@@ -70,7 +70,7 @@ else
                                                      --export \
                                                      --list > /tmp/inventory-cache.yml
     fi
-    export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
+    export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,${MTC_WORKING_DIR}/overlay-inventory.yml"
     if [[ -f "/etc/openstack_deploy/inventory.ini" ]]; then
       export ANSIBLE_INVENTORY="/etc/openstack_deploy/inventory.ini,${ANSIBLE_INVENTORY}"
     fi
@@ -82,7 +82,7 @@ else
                                                        --export \
                                                        --list > /tmp/inventory-cache.yml
     # Set the ansible inventory
-    export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,/opt/openstack-ansible-ops/overlay-inventories/osa-integration-inventory.yml"
+    export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,${MTC_WORKING_DIR}/overlay-inventory.yml"
   fi
 
   # Set ceph ansible inventory
