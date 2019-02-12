@@ -34,8 +34,8 @@
     no_proxy_hosts:
       - localhost
       - 127.0.0.1
-      - "{{ internal_lb_vip_address }}"
-      - "{{ external_lb_vip_address }}"
+      - "{{ internal_lb_vip_address | default(groups['all'] | map('extract', hostvars, 'internal_lb_vip_address') | list | last) }}"
+      - "{{ external_lb_vip_address | default(groups['all'] | map('extract', hostvars, 'external_lb_vip_address') | list | last) }}"
       - "{{ ((groups['rabbitmq_all'] | default([])) | union((groups['log_containers'] | default([])))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
     all_var_location:
       osa: "/etc/openstack_deploy"
