@@ -96,6 +96,24 @@ all_systems:
                 - "httpchk HEAD / HTTP/1.0\\r\\nUser-agent:\\ osa-haproxy-healthcheck"
 
       children:
+        rsyslog_all:
+          children:
+            rsyslog: {}
+
+        ceph_all:
+          children:
+            mons_hosts:
+              children:
+                mons: {}
+
+            osds_hosts:
+              children:
+                osds: {}
+
+            rgws_hosts:
+              children:
+                rgws: {}
+
         traefik_all:
           children:
             traefik_build_nodes:
