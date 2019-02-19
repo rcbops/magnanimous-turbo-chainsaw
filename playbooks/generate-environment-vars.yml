@@ -102,13 +102,6 @@
       when:
         - http_proxy_server != 'none://none:none'
 
-    - name: Run RPC setup with OpenStack-Ansible
-      include_tasks: common-tasks/setup_rpc.yml
-      vars:
-        var_psth: "{{ var_location }}"
-      when:
-        - osa_check.stat.exists | bool
-
     # - name: Run RPC setup with OSP
     #   include_tasks: common-tasks/setup_osp.yml  # unimplemented
     #   vars:
