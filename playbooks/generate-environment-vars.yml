@@ -27,8 +27,8 @@
   gather_facts: no
   vars:
     http_proxy_server: "none://none:none"
-    java_http_proxy: "{{ (http_proxy_server).split('://')[-1].strip('/') }}"
-    java_https_proxy: "{{ (https_proxy_server | default(http_proxy_server)).split('://')[-1].strip('/') }}"
+    java_http_proxy: "{{ (http_proxy_server).split('://')[-1].split('@')[-1].split(':')[0].strip('/') }}"
+    java_https_proxy: "{{ (https_proxy_server | default(http_proxy_server))[-1].split('@')[-1].split(':')[0].strip('/') }}"
     java_http_proxy_port: "{{ (http_proxy_server).split(':')[-1].strip('/') }}"
     java_https_proxy_port: "{{ (https_proxy_server | default(http_proxy_server)).split(':')[-1].strip('/') }}"
     no_proxy_hosts:
