@@ -44,6 +44,18 @@ deployment_environment_variables:
     -Dhttps.proxyHost={{ java_https_proxy }}
     -Dhttp.proxyPort={{ java_http_proxy_port }}
     -Dhttps.proxyPort={{ java_https_proxy_port }}
+{%   if java_http_proxy_user is defined %}
+    -Dhttp.proxyUser={{ java_http_proxy_user }}
+{%   endif %}
+{%   if java_https_proxy_user is defined %}
+    -Dhttps.proxyUser={{ java_https_proxy_user }}
+{%   endif %}
+{%   if java_http_proxy_pass is defined %}
+    -Dhttp.proxyPassword={{ java_http_proxy_pass }}
+{%   endif %}
+{%   if java_http_proxy_pass is defined %}
+    -Dhttps.proxyPassword={{ java_https_proxy_pass }}
+{%   endif %}
 {% endif %}
 
 {% raw %}

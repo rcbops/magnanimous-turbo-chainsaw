@@ -90,6 +90,24 @@
       when:
         - not config_dir.stat.exists | bool
 
+    - name: Java auth proxy variables
+      block:
+        - name: Set variable path location
+          set_fact:
+            java_http_proxy_user: "{{ http_proxy_server.split('://')[-1].split('@')[0].split(':')[0] }}"
+            java_http_proxy_pass: "{{ http_proxy_server.split('://')[-1].split('@')[0].split(':')[-1] }}"
+          when:
+            - http_proxy_server is defined
+
+        - name: Set variable path location
+          set_fact:
+            java_https_proxy_user: "{{ (https_proxy_server | default(http_proxy_server)).split('://')[-1].split('@')[0].split(':')[0] }}"
+            java_https_proxy_pass: "{{ (https_proxy_server | default(http_proxy_server)).split('://')[-1].split('@')[0].split(':')[-1] }}"
+          when:
+            - (https_proxy_server is defined) or (http_proxy_server is defined)
+      when:
+        - ("@" in http_proxy_server) or ("@" in https_proxy_server | default(http_proxy_server))
+
     - name: Create user_tools_variables.yml
       template:
         src: templates/user_tools_variables.yml.j2
