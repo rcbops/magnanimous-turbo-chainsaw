@@ -14,16 +14,33 @@ environments.
 #### Setup
 
 Run the setup script on a deployment host which will be managed by the MTC.
-There are many ways to bootstrap an environment with the MTC tooling, the
-easiest way is to simply download the setup script and run it.
+There are many ways to setup an environment with the MTC tooling, just do
+what works best for the environment.
 
-If working with a proxy, make sure the `noproxy`, `http_proxy`, and
-`https_proxy` are set, as needed. The setup process will react to proxies
-making
+Download the setup script and execute it.
+
+``` bash
+wget https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/master/scripts/setup.sh -O /opt/mtc-setup.sh
+bash /opt/mtc-setup.sh
+```
+
+Run a single command.
 
 ``` bash
 curl https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/master/scripts/setup.sh | bash
 ```
+
+Clone the tools and execute the setup script.
+
+``` bash
+git clone https://github.com/rcbops/magnanimous-turbo-chainsaw /opt/magnanimous-turbo-chainsaw
+bash /opt/magnanimous-turbo-chainsaw/scripts/setup.sh
+```
+
+If working with a proxy, make sure the `noproxy`, `http_proxy`, and
+`https_proxy` options are set, as needed. The setup process will react
+to proxies ensuring our tooling is configured in a way that is proxy
+friendly.
 
 #### Creating a workspace
 
