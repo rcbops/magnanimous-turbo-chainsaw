@@ -12,7 +12,20 @@ all_systems:
       children:
         physical_hosts:
           children:
-            hosts: {}
+            hosts:
+              ceph_all:
+                children:
+                  mons_hosts:
+                    children:
+                      mons: {}
+
+                  osds_hosts:
+                    children:
+                      osds: {}
+
+                  rgws_hosts:
+                    children:
+                      rgws: {}
 
     all_metering:
       children:
@@ -99,20 +112,6 @@ all_systems:
         rsyslog_all:
           children:
             rsyslog: {}
-
-        ceph_all:
-          children:
-            mons_hosts:
-              children:
-                mons: {}
-
-            osds_hosts:
-              children:
-                osds: {}
-
-            rgws_hosts:
-              children:
-                rgws: {}
 
         traefik_all:
           children:
