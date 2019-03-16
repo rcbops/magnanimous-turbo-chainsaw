@@ -13,19 +13,20 @@ all_systems:
         physical_hosts:
           children:
             hosts:
-              ceph_all:
-                children:
-                  mons_hosts:
-                    children:
-                      mons: {}
+              children:
+                ceph_all:
+                  children:
+                    mons_hosts:
+                      children:
+                        mons: {}
 
-                  osds_hosts:
-                    children:
-                      osds: {}
+                    osds_hosts:
+                      children:
+                        osds: {}
 
-                  rgws_hosts:
-                    children:
-                      rgws: {}
+                    rgws_hosts:
+                      children:
+                        rgws: {}
 
     all_metering:
       children:
