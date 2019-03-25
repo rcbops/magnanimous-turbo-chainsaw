@@ -115,6 +115,24 @@ bash ./scripts/deploy-skydive.sh
 
 ----
 
+#### Ensureing the MTC is up-to-date after a system upgrade
+
+In the event that the underlying system is running `openstack-ansible`
+for an OpenStack cloud deployment it's recommended to update the MTC
+repositories whenever the system's roles have been changed or modified;
+after an OpenStack version upgrade. This can be done by running a
+simple Ansible galaxy command.
+
+``` bash
+# Make sure to have the OSA_PATH defined
+${HOME}/ansible_venv/bin/ansible-galaxy install -r "${OSA_PATH}/ansible-role-requirements.yml"\
+                                                --ignore-errors \
+                                                --force \
+                                                --roles-path="${HOME}/ansible_venv/repositories/roles"
+```
+
+----
+
 ### Local testing
 
 All of the tools covered by the MTC can be tested on a local test instance.
