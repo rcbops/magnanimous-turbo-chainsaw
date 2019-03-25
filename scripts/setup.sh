@@ -114,6 +114,8 @@ if [[ -n "${OSA_PATH}" ]] && [[ -f "${OSA_PATH}/ansible-role-requirements.yml" ]
     ansible-galaxy install -r "${OSA_PATH}/ansible-role-requirements.yml" --ignore-errors --force --roles-path="${HOME}/ansible_venv/repositories/roles"
 fi
 
+PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" bash "${MTC_SCRIPT_DIR}/setup-workspace.sh"
+
 # Get osa ops tools
 ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
 
