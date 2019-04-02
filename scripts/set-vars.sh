@@ -19,6 +19,9 @@ export MTC_VARS_PATH="/tmp"
 # Use this environment variable to add additional options to all ansible runs.
 export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
 
+# Environment variable to append options to MTC pip commands
+export PIP_INSTALL_OPTS="${PIP_INSTALL_OPTS:-''}"
+
 # Determine OS and validate curl is installed
 if [[ -f "/etc/os-release" ]]; then
   source /etc/os-release

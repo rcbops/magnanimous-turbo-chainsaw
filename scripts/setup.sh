@@ -93,7 +93,7 @@ else
 
   # NOTICE(Cloudnull): This pip install is only required until we can sort out
   #                    why its needed for installation that use Hashicorp-Vault.
-  pip install pyOpenSSL==16.2.0
+  pip install pyOpenSSL==16.2.0 ${PIP_INSTALL_OPTS}
 fi
 
 # Restore the pip config if found
