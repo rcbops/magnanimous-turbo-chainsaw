@@ -122,4 +122,5 @@ ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTOR
 # Generate the required variables
 ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" \
                  -e "http_proxy_server=${http_proxy:-'none://none:none'}" \
+                 -e "extra_no_proxy_hosts=${ORIG_NO_PROXY:-''}" \
                  ${MTC_PLAYBOOK_DIR}/generate-environment-vars.yml

@@ -22,6 +22,9 @@ export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
 # Environment variable to append options to MTC pip commands
 export PIP_INSTALL_OPTS="${PIP_INSTALL_OPTS:-}"
 
+# Export pre-existing no_proxy variable
+export ORIG_NO_PROXY="$(env | awk -F= '/^no_proxy/ {print $NF}')"
+
 # Determine OS and validate curl is installed
 if [[ -f "/etc/os-release" ]]; then
   source /etc/os-release
