@@ -34,11 +34,10 @@ haproxy_extra_services:
 
 {% if (http_proxy_server is defined) and (http_proxy_server != "none://none:none") %}
 # Proxy Variables
-extra_no_proxy_hosts: "{{ extra_no_proxy_hosts | default('') }}"
 deployment_environment_variables:
   http_proxy: "{{ http_proxy_server }}"
   https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
-  no_proxy: "{{ no_proxy_hosts | join(',') }},{{ extra_no_proxy_hosts | default('') }}"
+  no_proxy: "{{ no_proxy_hosts | union(extra_no_proxy_hosts.split(',') | default('')) | join(',') | default('') }}"
   ES_JAVA_OPTS: >-
     -Dhttp.proxyHost={{ java_http_proxy }}
     -Dhttps.proxyHost={{ java_https_proxy }}
