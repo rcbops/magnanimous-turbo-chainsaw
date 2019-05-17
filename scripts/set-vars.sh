@@ -23,7 +23,7 @@ export ANSIBLE_EXTRA_VARS="${ANSIBLE_EXTRA_VARS:-}"
 export PIP_INSTALL_OPTS="${PIP_INSTALL_OPTS:-}"
 
 # Export pre-existing no_proxy variable
-export ORIG_NO_PROXY="$(env | awk -F= '/^no_proxy/ {print $NF}')"
+export ORIG_NO_PROXY="${ORIG_NO_PROXY:-$(env | awk -F= '/^no_proxy/ {print $NF}')}"
 
 # Determine OS and validate curl is installed
 if [[ -f "/etc/os-release" ]]; then

@@ -34,12 +34,23 @@
     no_proxy_hosts:
       - localhost
       - 127.0.0.1
-      - "{{ internal_lb_vip_address | default(groups['all'] | map('extract', hostvars, 'internal_lb_vip_address') | list | last) }}"
-      - "{{ external_lb_vip_address | default(groups['all'] | map('extract', hostvars, 'external_lb_vip_address') | list | last) }}"
-      - "{{ ((groups['rabbitmq_all'] | default([])) | union((groups['log_containers'] | default([])))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
+      - "{{ internal_lb_vip_address | default([] | map('extract', hostvars, 'internal_lb_vip_address') | list | last) }}"
+      - "{{ external_lb_vip_address | default([] | map('extract', hostvars, 'external_lb_vip_address') | list | last) }}"
+      - "{{ ((groups['rabbitmq_all'] | default([])) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([]))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
+      - "{{ ((groups['rabbitmq_all'] | default([])) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([]))) | map('extract', hostvars, 'container_address') | list | join(',') }}"
     all_var_location:
       osa: "/etc/openstack_deploy"
       osp: "/home/stack"
+    maas_endpoints:
+      agent_endpoint: "agent-endpoint-ord.monitoring.api.rackspacecloud.com"
+      agent_endpoint_url: "https://agent-endpoint-ord.monitoring.api.rackspacecloud.com"
+      api: "monitoring.api.rackspacecloud.com"
+      api_url: "https://monitoring.api.rackspacecloud.com"
+      validate_certs: false
+      status_code:
+        - 200
+        - 404
+        - 503
   vars_files:
     - vars/main.yml
   tasks:
@@ -108,6 +119,76 @@
       when:
         - ("@" in http_proxy_server) or ("@" in https_proxy_server | default(http_proxy_server))
 
+    - name: maas API connectivity block
+      block:
+        - name: Test Rackspace Monitoring API excluding http_proxy
+          uri:
+            url: "{{ maas_endpoints.api_url }}"
+            validate_certs: "{{ maas_endpoints.validate_certs }}"
+            timeout: 5
+            status_code: "{{ maas_endpoints.status_code }}"
+          environment:
+            no_proxy: "{{ maas_endpoints.api }}"
+
+        - debug:
+            msg: "Adding API ({{ maas_endpoints.api }}) to no_proxy"
+
+        - name: Set fact to add MaaS API URL to no_proxy
+          set_fact:
+            maas_api_no_proxy: "['{{ maas_endpoints.api }}']"
+
+      rescue:
+        - name: Test Rackspace Monitoring API with proxy
+          uri:
+            url: "{{ maas_endpoints.api_url }}"
+            validate_certs: "{{ maas_endpoints.validate_certs }}"
+            timeout: 5
+            status_code: "{{ maas_endpoints.status_code }}"
+          environment:
+            http_proxy: "{{ http_proxy_server }}"
+            https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
+
+        - debug:
+            msg: "Proxy API ({{ maas_endpoints.api }}) normally"
+      when:
+        - (https_proxy_server is defined) or (http_proxy_server is defined)
+        - http_proxy_server != 'none://none:none'
+
+    - name: maas agent endpoint connectivity block
+      block:
+        - name: Test Rackspace Monitoring agent endpoint excluding http_proxy
+          uri:
+            url: "{{ maas_endpoints.agent_endpoint_url }}"
+            validate_certs: "{{ maas_endpoints.validate_certs }}"
+            timeout: 5
+            status_code: "{{ maas_endpoints.status_code }}"
+          environment:
+            no_proxy: "{{ maas_endpoints.agent_endpoint }}"
+
+        - debug:
+            msg: "Adding agent endpoint ({{ maas_endpoints.agent_endpoint }}) to no_proxy"
+
+        - name: Set fact to add MaaS agent endpoint to no_proxy
+          set_fact:
+            maas_endpoint_no_proxy: "['{{ maas_endpoints.agent_endpoint }}']"
+
+      rescue:
+        - name: Test Rackspace Monitoring agent endpoint with proxy
+          uri:
+            url: "{{ maas_endpoints.agent_endpoint_url }}"
+            validate_certs: "{{ maas_endpoints.validate_certs }}"
+            timeout: 5
+            status_code: "{{ maas_endpoints.status_code }}"
+          environment:
+            http_proxy: "{{ http_proxy_server }}"
+            https_proxy: "{{ https_proxy_server | default(http_proxy_server) }}"
+
+        - debug:
+            msg: "Proxy agent endpoint ({{ maas_endpoints.agent_endpoint }}) normally"
+      when:
+        - (https_proxy_server is defined) or (http_proxy_server is defined)
+        - http_proxy_server != 'none://none:none'
+
     - name: Create user_tools_variables.yml
       template:
         src: templates/user_tools_variables.yml.j2
@@ -127,7 +208,8 @@
     #   when:
     #     - osp_check.stat.exists | bool
 
-    - name: Ensure secrets exist
-      include_tasks: common-tasks/setup_secrets.yml
-      vars:
-        var_psth: "{{ var_location }}"
+    # NOTE (npawelek): ELK is no longer deployed (removed 5/16/19)
+    #- name: Ensure secrets exist
+    #  include_tasks: common-tasks/setup_secrets.yml
+    #  vars:
+    #    var_path: "{{ var_location }}"
