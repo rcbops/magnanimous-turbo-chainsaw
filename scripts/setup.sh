@@ -120,7 +120,7 @@ PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" bash "${MTC_
 ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" "${MTC_PLAYBOOK_DIR}/get-osa-ops.yml"
 
 # Generate the required variables
-ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} -i "${ANSIBLE_INVENTORY:-localhost,}" \
+ansible-playbook ${ANSIBLE_EXTRA_VARS:-} ${MTC_BLACKLIST} \
                  -e "http_proxy_server=${http_proxy:-'none://none:none'}" \
                  -e "extra_no_proxy_hosts=${ORIG_NO_PROXY:-''}" \
                  ${MTC_PLAYBOOK_DIR}/generate-environment-vars.yml

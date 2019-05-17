@@ -34,10 +34,10 @@
     no_proxy_hosts:
       - localhost
       - 127.0.0.1
-      - "{{ internal_lb_vip_address | default([] | map('extract', hostvars, 'internal_lb_vip_address') | list | last) }}"
-      - "{{ external_lb_vip_address | default([] | map('extract', hostvars, 'external_lb_vip_address') | list | last) }}"
-      - "{{ ((groups['rabbitmq_all'] | default([])) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([]))) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
-      - "{{ ((groups['rabbitmq_all'] | default([])) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([]))) | map('extract', hostvars, 'container_address') | list | join(',') }}"
+      - "{{ groups['shared-infra_hosts'] | default([]) | union(groups['all'] | default([])) | map('extract', hostvars, 'internal_lb_vip_address') | list | last }}"
+      - "{{ groups['shared-infra_hosts'] | default([]) | union(groups['all'] | default([])) | map('extract', hostvars, 'external_lb_vip_address') | list | last }}"
+      - "{{ groups['rabbitmq_all'] | default([]) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([])) | map('extract', hostvars, 'ansible_host') | list | join(',') }}"
+      - "{{ groups['rabbitmq_all'] | default([]) | union(groups['log_containers'] | default([])) | union(groups['shared-infra_hosts'] | default([])) | map('extract', hostvars, 'container_address') | list | join(',') }}"
     all_var_location:
       osa: "/etc/openstack_deploy"
       osp: "/home/stack"
@@ -103,14 +103,14 @@
 
     - name: Java auth proxy variables
       block:
-        - name: Set variable path location
+        - name: Set java http credential variables
           set_fact:
             java_http_proxy_user: "{{ http_proxy_server.split('://')[-1].split('@')[0].split(':')[0] }}"
             java_http_proxy_pass: "{{ http_proxy_server.split('://')[-1].split('@')[0].split(':')[-1] }}"
           when:
             - http_proxy_server is defined
 
-        - name: Set variable path location
+        - name: Set java https credential variables
           set_fact:
             java_https_proxy_user: "{{ (https_proxy_server | default(http_proxy_server)).split('://')[-1].split('@')[0].split(':')[0] }}"
             java_https_proxy_pass: "{{ (https_proxy_server | default(http_proxy_server)).split('://')[-1].split('@')[0].split(':')[-1] }}"
