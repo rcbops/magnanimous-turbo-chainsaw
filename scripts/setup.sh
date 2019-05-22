@@ -87,13 +87,16 @@ fi
 
 if [[ -f "${MTC_SCRIPT_DIR}/setup-workspace.sh" ]];  then
   PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source "${MTC_SCRIPT_DIR}/setup-workspace.sh"
+  pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/setup-workspace.sh" -o /tmp/setup-workspace.sh
   PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source /tmp/setup-workspace.sh
 
   # NOTICE(Cloudnull): This pip install is only required until we can sort out
   #                    why its needed for installation that use Hashicorp-Vault.
-  pip install pyOpenSSL==16.2.0 ${PIP_INSTALL_OPTS}
+  # NOTE(npawelek): PyYAML 5.1 has introduced template problems. This should
+  #                 be tested and removed when 5.2 is released.
+  pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
 fi
 
 # Restore the pip config if found
