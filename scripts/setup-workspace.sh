@@ -75,6 +75,7 @@ else
       export ANSIBLE_INVENTORY="/etc/openstack_deploy/inventory.ini,${ANSIBLE_INVENTORY}"
     fi
 
+  # General configuration for OSP13
   elif [[ -d "/home/stack" ]] && [[ -f "/bin/tripleo-ansible-inventory" ]]; then
         ANSIBLE_INVENTORY="${OSP_PATH}/inventory/rpcr_dynamic_inventory.py" \
           "${HOME}/ansible_venv/bin/ansible-inventory" --vars \
@@ -83,6 +84,10 @@ else
                                                        --list > /tmp/inventory-cache.yml
     # Set the ansible inventory
     export ANSIBLE_INVENTORY="/tmp/inventory-cache.yml,${MTC_WORKING_DIR}/overlay-inventory.yml"
+
+  # Configuration for RPC-R ceph standalone
+  elif [[ ! -d "/home/stack" ]] && [[ -d "/usr/share/ceph-ansible" ]]; then
+    export ANSIBLE_INVENTORY="/usr/share/ceph-ansible/inventory,${MTC_WORKING_DIR}/overlay-inventory.yml"
   fi
 
   # Set ceph ansible inventory
@@ -111,5 +116,7 @@ if [[ -f "/etc/rhosp-release" ]]; then
     if [[ -f "/home/stack/.ssh/id_rsa" ]]; then
       export ANSIBLE_PRIVATE_KEY_FILE="/home/stack/.ssh/id_rsa"
     fi
+  elif [[ -d "/usr/share/ceph-ansible" ]]; then
+    export USER_ALL_VARS+="$(for i in $(ls -1 /usr/share/ceph-ansible/user_*.yml); do echo -n "-e@$i "; done)"
   fi
 fi
