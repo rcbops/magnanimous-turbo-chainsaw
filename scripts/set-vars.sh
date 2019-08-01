@@ -56,6 +56,18 @@ if [[ -d "/home/stack" ]] && [[ -f "/bin/tripleo-ansible-inventory" ]]; then
   export OS_CACERT="${OS_CACERT:-/etc/pki/tls/certs/ca-bundle.crt}"
 fi
 
+# This should catch RPC-R ceph standalone deployments. If the associated
+# cloud is OSP13, it's recommended the director node is used to deploy
+# OSP and standalone ceph-ansible. If the OSP version is prior to OSP13,
+# then it's recommended to deploy from a separate deployment node
+# because MTC will fail due to detecting a director node, but not having
+# the necessary tripleo functionality available.
+if [[ ! -d "/home/stack" ]] && [[ -d "/usr/share/ceph-ansible" ]]; then
+  export OSP_PATH="${OSP_PATH:-/opt/rpc-maas}"
+  export STACK_HOME="${STACK_HOME:-/usr/share/ceph-ansible}"
+  export MTC_VARS_PATH="${STACK_HOME}"
+fi
+
 # Append limit blacklist to the runtime
 if [[ -f "/tmp/mtc.blacklist" ]]; then
   export MTC_BLACKLIST="--limit @/tmp/mtc.blacklist"
