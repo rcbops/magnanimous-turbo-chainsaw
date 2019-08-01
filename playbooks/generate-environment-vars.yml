@@ -54,10 +54,18 @@
   vars_files:
     - vars/main.yml
   tasks:
-    - name: Check OSP
-      stat:
-        path: "/etc/rhosp-release"
-      register: osp_check
+    - name: check for OSP and validate version
+      block:
+        - name: Check OSP
+          stat:
+            path: "/etc/rhosp-release"
+          register: osp_check
+
+        - name: Register /etc/rhosp-release version
+          shell: cat /etc/rhosp-release | tr -dc '0-9.'
+          register: osp_version
+          when:
+            - osp_check.stat.exists | bool
 
     - name: Check OSA
       stat:
@@ -75,6 +83,8 @@
         var_location: "{{ all_var_location['osp'] }}"
       when:
         - osp_check.stat.exists | bool
+        - osp_version is defined
+        - osp_version.stdout is version('13.0.0', '>=')
 
     - name: Setup exit
       block:
