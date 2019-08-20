@@ -91,7 +91,9 @@ else
   fi
 
   # Set ceph ansible inventory
-  if [[ -f "/tmp/inventory-ceph.ini" ]]; then
+  if [[ -f "/tmp/inventory-ceph.yml" ]]; then
+    export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY},/tmp/inventory-ceph.yml"
+  elif [[ -f "/tmp/inventory-ceph.ini" ]]; then
     export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY},/tmp/inventory-ceph.ini"
   fi
 
