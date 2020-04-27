@@ -36,14 +36,19 @@ function ssh_key_create {
 
 
 ## Main ----------------------------------------------------------------------
-if [[ ! -e $(which curl) ]]; then
+if [[ -f "/etc/os-release" ]]; then
+  source /etc/os-release
+  export ID="$(echo ${ID} | awk -F'-' '{print $1}')"
+fi
+
+if [[ ! -e $(which git) ]] || [[ ! -e $(which curl) ]]; then
   if [[ ${ID} = "ubuntu" ]]; then
     apt-get update
-    apt-get -y install curl
+    apt-get -y install curl git
   elif [[ ${ID} = "opensuse" ]] || [[ ${ID} = "suse" ]]; then
-    zypper install -y curl
+    zypper install -y curl git
   elif [[ ${ID} = "centos" ]] || [[ ${ID} = "redhat" ]] || [[ ${ID} = "rhel" ]]; then
-    yum install -y curl
+    yum install -y curl git
   else
     echo "Unknown operating system"
     exit 99
@@ -85,9 +90,18 @@ elif [[ ! -d "/opt/openstack-ansible-ops/bootstrap-embedded-ansible" ]]; then
   popd
 fi
 
+if [[ ! -d "${MTC_WORKING_DIR}" ]]; then
+  git clone -b ${MTC_RELEASE} https://github.com/rcbops/magnanimous-turbo-chainsaw "${MTC_WORKING_DIR}"
+else
+  pushd "${MTC_WORKING_DIR}"
+    git fetch --all
+    git reset --hard origin/${MTC_RELEASE}
+  popd
+fi
+
 if [[ -f "${MTC_SCRIPT_DIR}/setup-workspace.sh" ]];  then
   PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source "${MTC_SCRIPT_DIR}/setup-workspace.sh"
-  pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
+  # pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
 else
   curl -D - "https://raw.githubusercontent.com/rcbops/magnanimous-turbo-chainsaw/${MTC_RELEASE}/scripts/setup-workspace.sh" -o /tmp/setup-workspace.sh
   PS1="${PS1:-'\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '}" source /tmp/setup-workspace.sh
@@ -96,7 +110,7 @@ else
   #                    why its needed for installation that use Hashicorp-Vault.
   # NOTE(npawelek): PyYAML 5.1 has introduced template problems. This should
   #                 be tested and removed when 5.2 is released.
-  pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
+  # pip install pyOpenSSL==16.2.0 PyYAML==3.13 ${PIP_INSTALL_OPTS}
 fi
 
 # Restore the pip config if found
