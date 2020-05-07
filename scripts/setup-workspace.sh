@@ -38,7 +38,7 @@ function deactivate_workspace {
 }
 
 ## Main ----------------------------------------------------------------------
-pushd /opt/openstack-ansible-ops/bootstrap-embedded-ansible
+pushd "${MTC_SCRIPT_DIR}/bootstrap-embedded-ansible"
   source bootstrap-embedded-ansible.sh
 popd
 

@@ -2,7 +2,7 @@
 
 # Set the compatible version of ansible for RPC Toolstack projects
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_PATH:-$HOME/magnanimous-turbo-chainsaw-$(date +%Y-%m-%d).log}"
-export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.7.5.0}"
+export ANSIBLE_VERSION="${ANSIBLE_VERSION:-2.7.11}"
 export ANSIBLE_GATHERING="${ANSIBLE_GATHERING:-smart}"
 export ANSIBLE_CACHE_PLUGIN="${ANSIBLE_CACHE_PLUGIN:-jsonfile}"
 export ANSIBLE_CACHE_PLUGIN_CONNECTION="${ANSIBLE_CACHE_PLUGIN_CONNECTION:-/tmp/mtc_facts-$(date +%Y-%m-%d)}"
